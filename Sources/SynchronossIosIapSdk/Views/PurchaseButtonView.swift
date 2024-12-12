@@ -24,6 +24,9 @@ extension PurchaseButtonView {
     }
         
     private func isSubscribeButtonDisabled() -> Bool {
+        if(store.isPurchaseInProgress) {
+            return true
+        }
         guard let selectedPlan = store.selectedProduct else { return true }
         return Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscriptions)
     }
@@ -41,17 +44,26 @@ extension PurchaseButtonView {
                 }
             }
         }) {
-            Text(subscribeButtonTitle())
-                .font(.title3)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
-                .background(isSubscribeButtonDisabled() ? .gray : .blue)
-                .cornerRadius(10)
-                .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
+            HStack {
+                Text(subscribeButtonTitle())
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                        
+                if store.isPurchaseInProgress {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .padding(.leading, 8) 
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(isSubscribeButtonDisabled() ? .gray : .blue)
+            .cornerRadius(10)
+            .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
         .disabled(isSubscribeButtonDisabled())
+
     }
     
     private var recurringText: some View {
