@@ -3,6 +3,7 @@ import SwiftUI
 public struct RootPaymentView: View {
     private let apiKey: String
     @State private var showToast: Bool = false
+    @State private var isSheetPresented = false
     @StateObject private var store: PaymentStore
     
     public init(
@@ -14,8 +15,28 @@ public struct RootPaymentView: View {
         
     }
     public var body: some View {
+        Button(action: {
+            isSheetPresented = true
+        }) {
+            subscriptionButtonText
+        }
+        .padding()
+        .sheet(isPresented: $isSheetPresented) {
+            mainContent
+        }
+        .background()
+        
+    }
+}
+
+extension RootPaymentView {
+    private var mainContent: some View {
         ZStack {
-            PaymentContentView()
+            VStack {
+                closeButton
+                PaymentContentView()
+            }
+            .frame(maxHeight: .infinity, alignment: .top)
             ErrorView()
         }
         .environmentObject(store)
@@ -31,6 +52,31 @@ public struct RootPaymentView: View {
             if newValue != nil {
                 store.showToastForLimitedTime()
             }
+        }
+    }
+    
+    private var subscriptionButtonText: some View {
+        Text("Subscriptions")
+            .font(.headline)
+            .foregroundColor(.white)
+            .frame(minWidth: 100, minHeight: 20)
+            .padding()
+            .background(Color.blue)
+            .cornerRadius(8)
+    }
+    
+    private var closeButton: some View {
+        HStack {
+            Spacer()
+            Button(action: {
+                isSheetPresented = false
+            }) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 16, weight: .bold))
+                    .foregroundColor(.black)
+            }
+            .padding(.trailing, 16)
+            .padding(.top, 16)
         }
     }
 }
