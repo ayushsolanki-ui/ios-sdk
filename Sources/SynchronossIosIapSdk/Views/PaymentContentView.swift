@@ -4,6 +4,7 @@ struct PaymentContentView: View {
     @EnvironmentObject var store: PaymentStore
     var body: some View {
         VStack {
+            AppEnvironmentView()
             HeaderView()
             if store.isLoading {
                 ProgressView("Loading Plans...")

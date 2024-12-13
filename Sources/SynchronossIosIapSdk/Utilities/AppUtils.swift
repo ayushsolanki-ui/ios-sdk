@@ -10,4 +10,16 @@ struct AppUtils {
             throw AppError.openAppStoreSubscriptions
         }
     }
+    
+    @MainActor
+    static func detectSandboxEnvironment() -> Bool {
+        guard let receiptURL = Bundle.main.appStoreReceiptURL else {
+            return false
+        }
+        if receiptURL.lastPathComponent == "sandboxReceipt" {
+            return true
+        } else {
+            return false
+        }
+    }
 }

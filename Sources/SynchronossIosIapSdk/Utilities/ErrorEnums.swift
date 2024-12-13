@@ -35,3 +35,14 @@ enum AppError: Error {
         }
     }
 }
+
+enum PurchseError: Error {
+    case openAppStoreSubscriptions
+    
+    var localizedDescription: String {
+        switch self {
+        case .openAppStoreSubscriptions:
+            return "Failed to open subscriptions!"
+        }
+    }
+}

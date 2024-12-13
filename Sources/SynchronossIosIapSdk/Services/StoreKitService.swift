@@ -20,7 +20,14 @@ struct StoreKitService {
         }
     }
 
-    
+    func purchaseStoreProduct(_ product: Product, _ userId: String) async throws -> Product.PurchaseResult {
+        do {
+            let result = try await product.purchase(options: [.appAccountToken(EncryptionUtils.generateUUID(from: userId))])
+            return result
+        } catch {
+            throw error
+        }
+    }
 
     func sendTransactionDetails(for transaction: Transaction, with userId: String, using apiKey: String, of product: SubscriptionProduct) async throws {
         

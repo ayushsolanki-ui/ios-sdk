@@ -62,24 +62,31 @@ class PaymentStore: ObservableObject {
     func updateCustomerProductStatus() async {
         var purchasedSubs: [Product] = []
 
-        var activeSubscriptionGroups: Set<String> = []
+        var latestTransactions: [String: Transaction] = [:]
 
         for await result in Transaction.currentEntitlements {
             switch result {
-            case .unverified(_, let error):
-                print("Unverified transaction: \(error.localizedDescription)")
+            case .unverified:
+                continue
             case .verified(let transaction):
-                if let subscriptionGroup = Helpers.getSubscriptionGroupIdentifier(for: transaction, from: storeProducts)
-                {
-                    if !activeSubscriptionGroups.contains(subscriptionGroup) {
-                        if let prod = Helpers.getStoreProduct(with: transaction.productID, from: storeProducts) {
-                            purchasedSubs.append(prod)
-                        }
-                        activeSubscriptionGroups.insert(subscriptionGroup)
+                guard let subscriptionGroupId = Helpers.getSubscriptionGroupIdentifier(for: transaction, from: storeProducts) else {
+                    continue
+                }
+                print("verified = \(transaction.productID)")
+                if let existingTransaction = latestTransactions[subscriptionGroupId] {
+                    if transaction.purchaseDate > existingTransaction.purchaseDate {
+                        latestTransactions[subscriptionGroupId] = transaction
                     }
+                } else {
+                    latestTransactions[subscriptionGroupId] = transaction
                 }
             }
-            
+        }
+        
+        let latestTransactionProductIDs = Set(Array(latestTransactions.values).map { $0.productID })
+        print("latestTransactionProductIDs = \(latestTransactionProductIDs)")
+        purchasedSubs = storeProducts.filter { product in
+            latestTransactionProductIDs.contains(product.id)
         }
         
         self.purchasedSubscriptions = SubscriptionProduct.mapSubscriptionProducts(from: purchasedSubs)
@@ -157,13 +164,14 @@ class PaymentStore: ObservableObject {
     
     @MainActor
     func purchaseProduct(with subscriptionProduct: SubscriptionProduct) async {
+        print("subscriptionProduct id = \(subscriptionProduct.productId)")
         isPurchaseInProgress = true
         guard let product = storeProducts.first(where: { $0.id == subscriptionProduct.productId }) else {
             errorMessage = "Product not found in App Store"
             return
         }
         do {
-            let result = try await product.purchase(options: [.appAccountToken(EncryptionUtils.generateUUID(from: userId))])
+            let result = try await storekitService.purchaseStoreProduct(product, userId)
             switch result {
             case .success(let verification):
                 let transaction: Transaction = try Helpers.checkVerified(verification)
