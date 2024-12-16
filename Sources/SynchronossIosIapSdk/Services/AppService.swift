@@ -1,6 +1,7 @@
 import Foundation
 
 struct AppService {
+    let baseUrl = "https://sync-api.blr0.geekydev.com"
     func getUserSubscriptionDetails(for userId: String, with apiKey: String) async throws -> UserSubscriptionDetails {
         do {
             let url = URL(string: "https://05052a84-35de-4a87-ae64-2b32a9188b68.mock.pstmn.io/userSubscriptionDetails")!
@@ -23,7 +24,7 @@ struct AppService {
     
     func loadSubscriptionPlans(apiKey: String) async throws -> [ServerProduct] {
         do {
-            let url = URL(string: "https://05052a84-35de-4a87-ae64-2b32a9188b68.mock.pstmn.io/productDetails")!
+            let url = URL(string: baseUrl + "/api/app/product")!
             var request = URLRequest(url: url)
             request.setValue(apiKey, forHTTPHeaderField: "Authorization")
             let (data, _) = try await URLSession.shared.data(for: request)
