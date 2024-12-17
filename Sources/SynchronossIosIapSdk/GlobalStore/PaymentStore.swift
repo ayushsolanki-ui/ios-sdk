@@ -105,7 +105,7 @@ class PaymentStore: ObservableObject {
     @MainActor
     private func updateAvaiableProducts() {
         let products: [Product] = storeProducts.filter { prod in
-            serverProducts.contains { $0.productId == prod.id }
+            serverProducts.contains { $0.id == prod.id }
         }
         availableProducts =  Helpers.sortByPrice(SubscriptionProduct.mapSubscriptionProducts(from: products))
     }
