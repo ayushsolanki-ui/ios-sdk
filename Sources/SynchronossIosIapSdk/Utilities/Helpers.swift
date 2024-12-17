@@ -27,7 +27,7 @@ struct Helpers {
     }
     
     static func isProductPurchased(with productId: String, from products: [SubscriptionProduct]) -> Bool {
-        if products.first(where: {$0.productId == productId}) != nil {
+        if products.first(where: {$0.id == productId}) != nil {
             return true
         }
         return false
