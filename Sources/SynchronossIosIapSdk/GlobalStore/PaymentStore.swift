@@ -40,7 +40,7 @@ class PaymentStore: ObservableObject {
     // observable methods
     @MainActor
     private func updateProductIds() {
-        productIds = serverProducts.map { $0.productId };
+        productIds = serverProducts.map { $0.id };
     }
     
     @MainActor

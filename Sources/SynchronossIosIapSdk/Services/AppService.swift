@@ -24,7 +24,7 @@ struct AppService {
     
     func loadSubscriptionPlans(apiKey: String) async throws -> [ServerProduct] {
         do {
-            let url = URL(string: baseUrl + "/api/app/product")!
+            let url = URL(string: baseUrl + "/api/core/product")!
             var request = URLRequest(url: url)
             request.setValue(apiKey, forHTTPHeaderField: "Authorization")
             let (data, _) = try await URLSession.shared.data(for: request)

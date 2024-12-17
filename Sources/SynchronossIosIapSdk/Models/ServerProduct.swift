@@ -2,7 +2,7 @@ import Foundation
 
 struct ServerProduct: Codable, Identifiable {
     var id: String {
-        return productId
+        return productName
     }
-    let productId: String
+    let productName: String
 }
