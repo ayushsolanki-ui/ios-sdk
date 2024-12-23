@@ -1,7 +1,13 @@
 import Foundation
 import StoreKit
 
-struct StoreKitService {
+protocol StoreKitServicing {
+    func fetchProductsFromAppStore(for productIds: [String]) async throws -> [Product]
+    func purchaseStoreProduct(_ product: Product, _ userId: String) async throws -> Product.PurchaseResult
+    func sendTransactionDetails(for transaction: Transaction, with userId: String, using apiKey: String, of product: SubscriptionProduct) async throws
+}
+
+struct StoreKitService: StoreKitServicing {
     let appService = AppService();
 
     func fetchProductsFromAppStore(for productIds: [String]) async throws -> [Product] {
@@ -22,7 +28,8 @@ struct StoreKitService {
 
     func purchaseStoreProduct(_ product: Product, _ userId: String) async throws -> Product.PurchaseResult {
         do {
-            let result = try await product.purchase(options: [.appAccountToken(EncryptionUtils.generateUUID(from: userId))])
+            let uuidFromUserId = UUID(uuidString: userId) ?? UUID()
+            let result = try await product.purchase(options: [.appAccountToken(uuidFromUserId)])
             return result
         } catch {
             throw error

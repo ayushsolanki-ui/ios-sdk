@@ -36,7 +36,7 @@ struct AppService {
     }
     
     func sendVerifiedCheck(transaction: TransactionDetails, apiKey: String) async throws {
-        let urlString = "https://05052a84-35de-4a87-ae64-2b32a9188b68.mock.pstmn.io/transaction"
+        let urlString = baseUrl + "/api/iap/ios/handle"
         let url = URL(string: urlString)
                 
         if let url = url {

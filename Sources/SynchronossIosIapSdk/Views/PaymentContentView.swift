@@ -5,15 +5,16 @@ struct PaymentContentView: View {
     var body: some View {
         VStack {
             AppEnvironmentView()
-            HeaderView()
+            
             if store.isLoading {
-                ProgressView("Loading Plans...")
+                ProductListSkeleton()
             } else if store.availableProducts.count != 0 {
+                HeaderView()
                 ProductListView()
+                PurchaseButtonView()
             } else {
                 Text("No Products available at this time!")
             }
-            PurchaseButtonView()
         }
         .padding()
     }

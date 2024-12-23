@@ -7,7 +7,7 @@ struct HeaderView: View {
     var body: some View {
         ZStack {
             VStack {
-                Text(subscribed ? "Thanks for subscribing \(store.userId)!" : "Choose a plan \(store.userId)")
+                Text(subscribed ? "Thanks for subscribing \(store.userId)!" : "Choose a plan")
                     .font(.largeTitle.bold())
                     .multilineTextAlignment(.center)
                 Text(subscribed ?  "You are subscribed" : "A purchase is required to use this app")
