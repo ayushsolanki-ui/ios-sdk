@@ -72,8 +72,8 @@ extension RootPaymentView {
                 isSheetPresented = false
             }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.black)
+                    .font(.system(size: 16))
+                    .foregroundColor(Theme.secondary)
             }
             .padding(.trailing, 16)
             .padding(.top, 16)

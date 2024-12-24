@@ -7,6 +7,7 @@ struct PurchaseButtonView: View {
         VStack(spacing: 8) {
             recurringText
             purchaseButton
+            applyCouponButton
         }
     }
 }
@@ -17,9 +18,9 @@ extension PurchaseButtonView {
         if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscriptions) {
             return "Subscribed"
         } else if store.purchasedSubscriptions.isEmpty {
-            return "Subscribe"
+            return "Continue"
         } else {
-            return "Change Plan"
+            return "Continue"
         }
     }
         
@@ -46,8 +47,8 @@ extension PurchaseButtonView {
         }) {
             HStack {
                 Text(subscribeButtonTitle())
-                    .font(.title3)
-                    .fontWeight(.bold)
+                    .font(.system(size: 14))
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                         
                 if store.isPurchaseInProgress {
@@ -58,7 +59,7 @@ extension PurchaseButtonView {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSubscribeButtonDisabled() ? .gray : .blue)
+            .background(isSubscribeButtonDisabled() ? Theme.secondary : Theme.blue)
             .cornerRadius(10)
             .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
@@ -66,9 +67,25 @@ extension PurchaseButtonView {
 
     }
     
+    private var applyCouponButton: some View {
+        Button(action: {
+            // TODO:: coupon action
+        }) {
+            HStack {
+                Text("Apply Coupon")
+                    .font(.system(size: 14))
+                    .fontWeight(.semibold)
+                    .foregroundColor(Theme.primary)
+                        
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+        }
+    }
+    
     private var recurringText: some View {
         Text(recurringSubscriptionText)
-            .font(.footnote)
-            .foregroundColor(.primary)
+            .font(.system(size: 12))
+            .foregroundColor(Theme.secondary)
     }
 }

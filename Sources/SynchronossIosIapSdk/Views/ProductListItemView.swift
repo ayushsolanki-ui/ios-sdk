@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ProductListItemView: View {
     @EnvironmentObject var store: PaymentStore
-    
     var product: SubscriptionProduct
     var isSelected: Bool {
         if store.selectedProduct != nil && store.selectedProduct?.productId == product.productId {
@@ -11,65 +10,63 @@ struct ProductListItemView: View {
         return false
     }
     
+    var isSubscribed: Bool {
+        return Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscriptions)
+    }
+    
+    var cardBackgroundColor: LinearGradient {
+        if isSubscribed {
+            return LinearGradient(gradient: Gradient(colors: [Theme.gradientLeft, Theme.gradientRight]), startPoint: .topLeading, endPoint: .bottomTrailing)
+        }
+        return LinearGradient(gradient: Gradient(colors: [.white, .white]), startPoint: .topLeading, endPoint: .bottomTrailing)
+    }
+    
     var body: some View {
         HStack{
-            VStack(alignment: .leading, spacing: 10) {
-                Text(product.name)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-
-                Text(product.description)
-                    .font(.body)
-                    .foregroundColor(.primary)
-
-                Text(product.priceFormatted)
-                    .font(.title3)
-                    .fontWeight(.medium)
-                    .foregroundColor(.blue)
-                        
-                if let introOffer = product.offers.introductoryOffer {
-                    Text("Intro Offer: \(introOffer.priceFormatted) for \(introOffer.recurringSubscriptionPeriod.displayText)")
-                        .font(.callout)
-                        .foregroundColor(.accentColor)
-                }
-                        
-                if Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscriptions) {
-                    Text("⭐️ Your current plan")
-                        .font(.footnote)
-                        .foregroundColor(.blue)
-                }
+            cardBody
+            if !isSubscribed {
+                radioButton
             }
-            
-            Spacer()
-            radioButton
         }
         .padding()
         .background(
-            isSelected
-            ? LinearGradient(gradient: Gradient(colors: [.mint, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing)
-            : LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.2), Color.gray.opacity(0.3)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+            cardBackgroundColor
         )
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                .stroke(Theme.border, lineWidth: 1)
         )
+        .shadow(color: .black.opacity(0.1), radius: isSelected ? 8 : 0, x: 0, y: isSelected ? 4 : 0)
     }
 }
 
 extension ProductListItemView {
+    private var cardBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(product.priceFormatted)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(isSubscribed ? .white : .primary)
+            
+            Text(product.description)
+                .font(.body)
+                .foregroundColor(isSubscribed ? .white : .secondary)
+            
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
     private var radioButton: some View {
         ZStack {
             Circle()
-                .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 2)
+                .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 1)
                 .background(Circle().fill(isSelected ? Color.blue : Color.clear))
-                .frame(width: 24, height: 24)
-                
+                .frame(width: 20, height: 20)
+            
             if isSelected {
                 Image(systemName: "checkmark")
                     .foregroundColor(.white)
-                    .font(.system(size: 14, weight: .bold))
+                    .font(.system(size: 12, weight: .bold))
             }
         }
     }

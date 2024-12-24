@@ -5,10 +5,12 @@ struct ProductListView: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false){
             VStack(spacing: 20) {
-                ForEach(store.availableProducts) { product in
+                ForEach(store.tabIndex == 0 ? store.monthlyProducts : store.yearlyProducts) { product in
                     ProductListItemView(product: product)
                         .onTapGesture {
-                            store.selectedProduct = product
+                            if !Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscriptions) {
+                                store.selectedProduct = product
+                            }
                         }
                 }
             }

@@ -5,18 +5,28 @@ struct AppEnvironmentView: View {
     var body: some View {
         Group {
             if isSandboxEnvironment {
-                Text("Important: You are using a Sandbox Environment. Transactions made here are for testing purposes only and will not result in actual charges.")
-                    .font(.body)
-                    .fontWeight(.light)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4) // Adjust spacing between lines
-                    .frame(maxWidth: .infinity, alignment: .center) // Ensures the text is spread evenly
-                    .padding()
-                    .background(Color.black.opacity(0.7))
-                    .cornerRadius(12)
-                    .shadow(radius: 4)
-
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 14))
+                        .foregroundColor(.orange)
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Important")
+                            .font(.system(size: 12))
+                            .foregroundColor(Theme.orange)
+                        
+                        Text("You are using a Sandbox Environment. Transactions made here are for testing purposes only and will not result in actual changes.")
+                            .font(.system(size: 12))
+                            .lineSpacing(4)
+                            .foregroundColor(Theme.secondary)
+                    }
+                }
+                .padding()
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Theme.orangeBorder, lineWidth: 1)
+                )
+                .background(Theme.orangeLight)
             }
         }
     }

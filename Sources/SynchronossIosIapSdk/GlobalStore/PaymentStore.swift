@@ -8,6 +8,8 @@ typealias RenewalState = StoreKit.Product.SubscriptionInfo.RenewalState
 
 class PaymentStore: ObservableObject {
     @AppStorage("subscribed") private var isSubscribed: Bool = false
+    @Published var tabIndex: Int = 0
+    
     @Published var serverProducts: [ServerProduct] = []
     @Published var isLoading = true
     @Published var showToast = false
@@ -19,6 +21,14 @@ class PaymentStore: ObservableObject {
     @Published private(set) var purchasedSubscriptions: [SubscriptionProduct] = []
     @Published private(set) var availableProducts: [SubscriptionProduct] = []
     @Published private(set) var productIds: [String] = []
+    
+    var yearlyProducts: [SubscriptionProduct] {
+        return availableProducts.filter { $0.recurringSubscriptionPeriod.isYearly }
+    }
+    
+    var monthlyProducts: [SubscriptionProduct] {
+        return availableProducts.filter { $0.recurringSubscriptionPeriod.isMonthly }
+    }
     
     var updateListenerTask: Task<Void, Error>? = nil
     

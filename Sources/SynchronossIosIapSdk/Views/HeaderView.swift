@@ -1,31 +1,56 @@
 import SwiftUI
+import StoreKit
 
 struct HeaderView: View {
-    @AppStorage("subscribed") private var subscribed: Bool = false
     @EnvironmentObject var store: PaymentStore
     
     var body: some View {
-        ZStack {
-            VStack {
-                Image(.sdkicon)
-                    .resizable()
-                    .scaledToFit()
-                    .clipShape(Circle())
-                    .frame(width: 100)
-                    .padding(.bottom, 10)
-                Text(subscribed ? "Thanks for subscribing!" : "Choose a plan")
-                    .font(.title.bold())
-                    .multilineTextAlignment(.center)
-                if subscribed {
-                    goToSubscriptionButton
-                }
-            }
-            .padding(.vertical)
+        VStack(spacing: 16) {
+            logo
+            titleText
+            TabSwitcherView()
+            restorePurchase
         }
     }
 }
 
 extension HeaderView {
+    private var logo: some View {
+        Image(.logo)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 120)
+    }
+    private func restorePurchases() {
+        Task {
+            do {
+                try await AppStore.sync()
+            } catch {
+                store.errorMessage = "Failed to restore"
+                print("Failed to restore: \(error.localizedDescription)")
+            }
+        }
+    }
+    private var titleText: some View {
+        Text("Add more storage to keep everything in one place")
+            .font(.system(size: 24).bold())
+            .multilineTextAlignment(.center)
+            .padding(.horizontal)
+    }
+    
+    private var restorePurchase: some View {
+        Button(action: {
+            restorePurchases()
+        }) {
+            Text("Restore purchase")
+                .foregroundColor(Theme.secondary)
+                .font(.system(size: 12))
+                .underline(true, color: Theme.secondary)
+        }
+        .padding()
+    }
+    
+    // Unused for now
     private var goToSubscriptionButton: some View {
         Button(action: {
             do {
