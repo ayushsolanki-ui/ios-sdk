@@ -8,7 +8,7 @@ struct ProductListView: View {
                 ForEach(store.tabIndex == 0 ? store.monthlyProducts : store.yearlyProducts) { product in
                     ProductListItemView(product: product)
                         .onTapGesture {
-                            if !Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscriptions) {
+                            if !Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscription) {
                                 store.selectedProduct = product
                             }
                         }

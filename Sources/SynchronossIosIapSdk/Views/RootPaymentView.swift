@@ -23,6 +23,7 @@ public struct RootPaymentView: View {
         .padding()
         .sheet(isPresented: $isSheetPresented) {
             mainContent
+                .font(.system(.title, design: .default))
         }
         .background()
         
@@ -44,7 +45,7 @@ extension RootPaymentView {
             Task{ @MainActor in
                 await store.fetchUserSubscriptionDetails()
                 await store.fetchSubscriptionPlans(apiKey: apiKey)
-                await store.fetchStoreProducts()
+                await store.checkCachedAvailableProducts()
                 await store.updateCustomerProductStatus()
             }
         }
@@ -57,7 +58,7 @@ extension RootPaymentView {
     
     private var subscriptionButtonText: some View {
         Text("Subscriptions")
-            .font(.headline)
+            .font(.system(.headline, design: .default))
             .foregroundColor(.white)
             .frame(minWidth: 100, minHeight: 20)
             .padding()

@@ -11,7 +11,7 @@ struct ProductListItemView: View {
     }
     
     var isSubscribed: Bool {
-        return Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscriptions)
+        return Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscription)
     }
     
     var cardBackgroundColor: LinearGradient {

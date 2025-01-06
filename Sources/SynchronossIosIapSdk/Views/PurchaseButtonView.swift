@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct PurchaseButtonView: View {
     @EnvironmentObject var store: PaymentStore
@@ -15,9 +16,9 @@ struct PurchaseButtonView: View {
 extension PurchaseButtonView {
     private func subscribeButtonTitle() -> String {
         guard let selectedPlan = store.selectedProduct else { return "Select a Plan" }
-        if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscriptions) {
+        if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription) {
             return "Subscribed"
-        } else if store.purchasedSubscriptions.isEmpty {
+        } else if store.purchasedSubscription == nil {
             return "Continue"
         } else {
             return "Continue"
@@ -29,7 +30,7 @@ extension PurchaseButtonView {
             return true
         }
         guard let selectedPlan = store.selectedProduct else { return true }
-        return Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscriptions)
+        return Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription)
     }
     private var recurringSubscriptionText: String {
         if let product = store.selectedProduct {
@@ -69,7 +70,7 @@ extension PurchaseButtonView {
     
     private var applyCouponButton: some View {
         Button(action: {
-            // TODO:: coupon action
+            SKPaymentQueue.default().presentCodeRedemptionSheet()
         }) {
             HStack {
                 Text("Apply Coupon")
