@@ -14,11 +14,8 @@ struct ProductListItemView: View {
         return Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscription)
     }
     
-    var cardBackgroundColor: LinearGradient {
-        if isSubscribed {
-            return LinearGradient(gradient: Gradient(colors: [Theme.gradientLeft, Theme.gradientRight]), startPoint: .topLeading, endPoint: .bottomTrailing)
-        }
-        return LinearGradient(gradient: Gradient(colors: [.white, .white]), startPoint: .topLeading, endPoint: .bottomTrailing)
+    var cardBackgroundColor: Color {
+        Theme.background
     }
     
     var body: some View {
@@ -35,7 +32,7 @@ struct ProductListItemView: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.border, lineWidth: 1)
+                .stroke(Theme.primary, lineWidth: 1)
         )
         .shadow(color: .black.opacity(0.1), radius: isSelected ? 8 : 0, x: 0, y: isSelected ? 4 : 0)
     }

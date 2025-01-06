@@ -1,6 +1,7 @@
 import SwiftUI
 
 public struct RootPaymentView: View {
+    @Environment(\.colorScheme) var colorScheme
     private let apiKey: String
     @State private var showToast: Bool = false
     @State private var isSheetPresented = false
@@ -42,6 +43,7 @@ extension RootPaymentView {
         }
         .environmentObject(store)
         .onAppear {
+            AppUtils.applySystemColorScheme(colorScheme)
             Task{ @MainActor in
                 await store.fetchUserSubscriptionDetails()
                 await store.fetchSubscriptionPlans(apiKey: apiKey)
@@ -74,7 +76,7 @@ extension RootPaymentView {
             }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 16))
-                    .foregroundColor(Theme.secondary)
+                    .foregroundColor(Theme.bodyText)
             }
             .padding(.trailing, 16)
             .padding(.top, 16)

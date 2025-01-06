@@ -29,7 +29,7 @@ extension TabSwitcherView {
             }) {
                 Text("Monthly")
                     .font(.system(size: 14))
-                    .foregroundColor(store.tabIndex == 0 ? .white : Theme.blue)
+                    .foregroundColor(store.tabIndex == 0 ? .white : Theme.primary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
             
@@ -39,7 +39,7 @@ extension TabSwitcherView {
             }) {
                 Text("Yearly")
                     .font(.system(size: 14).weight(.semibold))
-                    .foregroundColor(store.tabIndex == 1 ? .white : Theme.blue)
+                    .foregroundColor(store.tabIndex == 1 ? .white : Theme.primary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
@@ -47,7 +47,7 @@ extension TabSwitcherView {
     
     private var staticBackground: some View {
         RoundedRectangle(cornerRadius: 8)
-            .fill(Theme.lightBlue)
+            .fill(Theme.secondary)
             .frame(height: 48)
     }
     
@@ -59,7 +59,7 @@ extension TabSwitcherView {
             let capsuleWidth = tabWidth - (horizontalInset * 2)
             
             return RoundedRectangle(cornerRadius: 8)
-            .fill(Theme.blue)
+            .fill(Theme.primary)
                 .frame(width: capsuleWidth, height: 40)
                 .offset(x: store.tabIndex == 1
                         ? tabWidth + horizontalInset

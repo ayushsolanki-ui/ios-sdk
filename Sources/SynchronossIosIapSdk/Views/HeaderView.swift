@@ -6,7 +6,9 @@ struct HeaderView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            logo
+            if Theme.logoUrl.count != 0 {
+                logo
+            }
             titleText
             TabSwitcherView()
             restorePurchase
@@ -16,10 +18,12 @@ struct HeaderView: View {
 
 extension HeaderView {
     private var logo: some View {
-        Image(.logo)
+        Image(Theme.logoUrl)
             .resizable()
             .scaledToFit()
             .frame(width: 120)
+        
+        
     }
     private func restorePurchases() {
         Task {
@@ -33,6 +37,7 @@ extension HeaderView {
     }
     private var titleText: some View {
         Text("Add more storage to keep everything in one place")
+            .foregroundColor(Theme.headingText)
             .font(.system(size: 24).bold())
             .multilineTextAlignment(.center)
             .padding(.horizontal)
