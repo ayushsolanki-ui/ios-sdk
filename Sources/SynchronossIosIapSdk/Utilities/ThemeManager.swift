@@ -59,33 +59,27 @@ let fallbackDarkThemeVariant = ThemeVariant.Colors(
 )
 
 @MainActor
-class ThemeManager {
+public class ThemeManager {
     static let shared = ThemeManager()
-
+    
     private(set) var themeData: ThemeData?
     private(set) var currentVariant: ThemeVariant.Colors?
-
+    
     private init() {
-        loadThemeFromJSON()
-        if let td = themeData {
-            currentVariant = td.themes.light.colors
-        } else {
-            currentVariant = fallbackLightThemeVariant
-        }
+        currentVariant = fallbackLightThemeVariant
     }
     
-    private func loadThemeFromJSON() {
-        guard let url = Bundle.main.url(forResource: "theme",
-                                        withExtension: "json",
-                                        subdirectory: "others") else {
-            print("theme.json not found in Others folder. Using fallback.")
-            return
-        }
+    public static func loadThemeFromJSON(_ url: URL) {
         do {
             let data = try Data(contentsOf: url)
-            themeData = try JSONDecoder().decode(ThemeData.self, from: data)
+            let decodedTheme = try JSONDecoder().decode(ThemeData.self, from: data)
+            
+            // Set these on the shared instance
+            shared.themeData = decodedTheme
+            shared.currentVariant = decodedTheme.themes.light.colors
         } catch {
             print("Error decoding theme.json: \(error). Using fallback.")
+            shared.currentVariant = fallbackLightThemeVariant
         }
     }
     

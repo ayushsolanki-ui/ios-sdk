@@ -45,6 +45,7 @@ extension RootPaymentView {
         .onAppear {
             AppUtils.applySystemColorScheme(colorScheme)
             Task{ @MainActor in
+                store.loadCacheProducts()
                 await store.fetchUserSubscriptionDetails()
                 await store.fetchSubscriptionPlans(apiKey: apiKey)
                 await store.checkCachedAvailableProducts()

@@ -96,6 +96,17 @@ class PaymentStore: ObservableObject {
     }
     
     @MainActor
+    func loadCacheProducts() {
+        guard let cache = CacheManager.loadLocalCache() else {
+            return
+        }
+        if !cache.products.isEmpty {
+            availableProducts = cache.products
+        }
+        
+    }
+    
+    @MainActor
     func updateSubscriptionStatus() async {
         if purchasedSubscription != nil {
             isSubscribed = true
