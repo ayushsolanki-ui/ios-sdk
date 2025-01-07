@@ -60,7 +60,7 @@ extension RootPaymentView {
     
     private var subscriptionButtonText: some View {
         Text("Subscriptions")
-            .font(.system(.headline, design: .default))
+            .font(Theme.font(size: 20).weight(.semibold))
             .foregroundColor(.white)
             .frame(minWidth: 100, minHeight: 20)
             .padding()
@@ -75,7 +75,7 @@ extension RootPaymentView {
                 isSheetPresented = false
             }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16))
+                    .font(Theme.font(size: 16))
                     .foregroundColor(Theme.bodyText)
             }
             .padding(.trailing, 16)

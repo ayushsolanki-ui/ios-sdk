@@ -80,6 +80,12 @@ struct Theme {
     static var errorBorder: Color {
         Color(hex: variant.error.border)
     }
+    
+    // MARK: - Fonts
+    /// Returns a custom SF Pro font with the specified size.
+    static func font(size: CGFloat) -> Font {
+        return Font.custom("SF Pro", size: size)
+    }
 }
 
 extension Color {
@@ -99,3 +105,4 @@ extension Color {
         )
     }
 }
+

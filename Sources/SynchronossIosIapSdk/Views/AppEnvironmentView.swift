@@ -7,16 +7,16 @@ struct AppEnvironmentView: View {
             if isSandboxEnvironment {
                 HStack(alignment: .top, spacing: 8) {
                     Image(systemName: "info.circle")
-                        .font(.system(size: 14))
+                        .font(Theme.font(size: 14))
                         .foregroundColor(.orange)
                     
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Important")
-                            .font(.system(size: 12))
+                            .font(Theme.font(size: 12))
                             .foregroundColor(Theme.errorText)
                         
                         Text("You are using a Sandbox Environment. Transactions made here are for testing purposes only and will not result in actual changes.")
-                            .font(.system(size: 12))
+                            .font(Theme.font(size: 12)) 
                             .lineSpacing(4)
                             .foregroundColor(Theme.bodyText)
                     }
@@ -31,3 +31,4 @@ struct AppEnvironmentView: View {
         }
     }
 }
+
