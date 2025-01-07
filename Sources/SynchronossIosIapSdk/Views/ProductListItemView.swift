@@ -54,7 +54,7 @@ extension ProductListItemView {
             Text(product.priceFormatted)
                 .font(Theme.font(size: 18))
                 .fontWeight(.semibold)
-                .foregroundColor(.primary)
+                .foregroundColor(isSubscribed ? .white : .primary)
             
             Text(product.description)
                 .font(Theme.font(size: 14))

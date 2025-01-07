@@ -61,7 +61,8 @@ extension RootPaymentView {
     
     private var subscriptionButtonText: some View {
         Text("Subscriptions")
-            .font(Theme.font(size: 20).weight(.semibold))
+            .font(Theme.font(size: 20))
+            .fontWeight(.semibold)
             .foregroundColor(.white)
             .frame(minWidth: 100, minHeight: 20)
             .padding()

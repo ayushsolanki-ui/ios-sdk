@@ -82,9 +82,8 @@ struct Theme {
     }
     
     // MARK: - Fonts
-    /// Returns a custom SF Pro font with the specified size.
     static func font(size: CGFloat) -> Font {
-        return Font.custom("SF Pro", size: size)
+        return Font.system(size: size)
     }
 }
 

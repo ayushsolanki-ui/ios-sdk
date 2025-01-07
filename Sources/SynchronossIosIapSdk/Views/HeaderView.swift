@@ -60,7 +60,9 @@ extension HeaderView {
     private var titleText: some View {
         Text("Add more storage to keep everything in one place")
             .foregroundColor(Theme.headingText)
-            .font(Theme.font(size: 24).bold())
+            .font(Theme.font(size: 24))
+            .fontWeight(.bold)
+            .lineSpacing(4)
             .multilineTextAlignment(.center)
             .padding(.horizontal)
             .frame(maxWidth: .infinity)
