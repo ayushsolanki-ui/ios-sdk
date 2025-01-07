@@ -31,6 +31,10 @@ class PaymentStore: ObservableObject {
         return availableProducts.filter { $0.recurringSubscriptionPeriod.isMonthly }
     }
     
+    var weeklyProducts: [SubscriptionProduct] {
+        return availableProducts.filter { $0.recurringSubscriptionPeriod.isWeekly }
+    }
+    
     var updateListenerTask: Task<Void, Error>? = nil
     
     let appService = AppService();
@@ -72,6 +76,7 @@ class PaymentStore: ObservableObject {
     @MainActor
     func updateCustomerProductStatus() async {
         if userSubscriptionDetails.isEmpty {
+            print("userSubscriptionDetails is empty")
             return
         }
         var purchasedSubcriptionId: String?
@@ -93,6 +98,17 @@ class PaymentStore: ObservableObject {
         
         await updateSubscriptionStatus()
         self.isLoading = false
+    }
+    
+    @MainActor
+    func loadCacheProducts() {
+        guard let cache = CacheManager.loadLocalCache() else {
+            return
+        }
+        if !cache.products.isEmpty {
+            availableProducts = cache.products
+        }
+        
     }
     
     @MainActor
@@ -198,16 +214,14 @@ class PaymentStore: ObservableObject {
             switch result {
             case .success(let verification):
                 let transaction: Transaction = try Helpers.checkVerified(verification)
-                print("purchase done - \(transaction)")
-                await fetchUserSubscriptionDetails()
                 try await storekitService.sendTransactionDetails(for: transaction, with: userId, using: apiKey, of: subscriptionProduct)
                 
-                await updateCustomerProductStatus()
-                
+                self.purchasedSubscription = subscriptionProduct
+                self.selectedProduct = nil
                 await transaction.finish()
                 errorMessage = nil
             case .userCancelled:
-                errorMessage = "User cancelled the purchase"
+                errorMessage = nil
                 
             case .pending:
                 errorMessage = "Purchase is pending"

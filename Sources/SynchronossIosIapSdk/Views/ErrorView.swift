@@ -18,12 +18,12 @@ extension ErrorView {
     private var toastView: some View {
         Group {
             Text(store.errorMessage ?? "Unknown Error")
-                .foregroundColor(.white)
+                .foregroundColor(Theme.errorText)
                 .padding()
-                .background(Color.red.opacity(0.8))
-                .cornerRadius(8)
+                .background(Theme.errorBackground)
                 .shadow(radius: 5)
         }
+        .cornerRadius(8)
         .padding(.bottom, 50)
         .transition(.move(edge: .bottom).combined(with: .opacity))
         .zIndex(1)

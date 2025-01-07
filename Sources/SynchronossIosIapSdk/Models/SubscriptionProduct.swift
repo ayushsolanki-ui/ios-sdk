@@ -145,6 +145,13 @@ enum RecurringSubscriptionPeriod: Codable {
         return false
     }
     
+    var isWeekly: Bool {
+        if case .custom(_, .week) = self {
+            return true
+        }
+        return false
+    }
+    
     // Computed property for display text
     var displayText: String {
         switch self {
