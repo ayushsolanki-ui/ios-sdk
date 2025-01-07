@@ -60,7 +60,7 @@ extension PurchaseButtonView {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSubscribeButtonDisabled() ? Theme.secondary : Theme.primary)
+            .background(isSubscribeButtonDisabled() ? Theme.tertiaryOnTertiary : Theme.primary)
             .cornerRadius(10)
             .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
@@ -87,6 +87,6 @@ extension PurchaseButtonView {
     private var recurringText: some View {
         Text(recurringSubscriptionText)
             .font(Theme.font(size: 12))
-            .foregroundColor(Theme.secondary)
+            .foregroundColor(Theme.bodyText)
     }
 }

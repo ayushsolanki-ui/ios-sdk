@@ -6,9 +6,7 @@ struct HeaderView: View {
     
     var body: some View {
         VStack(spacing: 16) {
-            if Theme.logoUrl.count != 0 {
-                logo
-            }
+            logo
             titleText
             TabSwitcherView()
             restorePurchase
@@ -17,11 +15,35 @@ struct HeaderView: View {
 }
 
 extension HeaderView {
-    private var logo: some View {
-        Image(Theme.logoUrl)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 120)
+    private var logo: AnyView {
+        if let url = URL(string: Theme.logoUrl) {
+            return AnyView(
+                AsyncImage(url: url) { phase in
+                    switch phase {
+                    case .empty:
+                        Circle()
+                            .fill(Color(white: 0.9))
+                            .frame(width: 40, height: 40)
+                            .shimmer()
+                    
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 120)
+                    
+                    case .failure:
+                        // Empty view if image fails to load
+                        EmptyView()
+                    
+                    @unknown default:
+                        EmptyView()
+                    }
+                }
+            )
+        } else {
+            return AnyView(EmptyView())
+        }
     }
     
     private func restorePurchases() {
@@ -41,6 +63,8 @@ extension HeaderView {
             .font(Theme.font(size: 24).bold())
             .multilineTextAlignment(.center)
             .padding(.horizontal)
+            .frame(maxWidth: .infinity)
+            .fixedSize(horizontal: false, vertical: true)
     }
     
     private var restorePurchase: some View {

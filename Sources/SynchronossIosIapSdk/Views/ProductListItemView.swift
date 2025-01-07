@@ -19,49 +19,85 @@ struct ProductListItemView: View {
     }
     
     var body: some View {
-        HStack{
-            cardBody
-            if !isSubscribed {
+        VStack {
+            if isSubscribed {
+                VStack(alignment: .leading) {
+                    Text("Current Subscription")
+                        .font(Theme.font(size: 12))
+                        .fontWeight(.semibold)
+                        .foregroundColor(Theme.surfaceOnSurface)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Theme.surfaceBase)
+            }
+            HStack{
+                cardBody
                 radioButton
             }
+            .padding()
         }
-        .padding()
         .background(cardBackgroundColor)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Theme.primary, lineWidth: 1)
+                .stroke(isSelected ? Theme.primary : Theme.outlineDefault, lineWidth: 1)
         )
-        .shadow(color: .black.opacity(0.1), radius: isSelected ? 8 : 0, x: 0, y: isSelected ? 4 : 0)
     }
 }
 
 extension ProductListItemView {
     private var cardBody: some View {
         VStack(alignment: .leading, spacing: 10) {
+            
             Text(product.priceFormatted)
                 .font(Theme.font(size: 18))
                 .fontWeight(.semibold)
-                .foregroundColor(isSubscribed ? .white : .primary)
+                .foregroundColor(.primary)
             
             Text(product.description)
                 .font(Theme.font(size: 14))
-                .foregroundColor(isSubscribed ? .white : .secondary)
+                .foregroundColor(.secondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var radioButton: some View {
-        ZStack {
+        // Decide the border color and fill color depending on each state.
+        let borderColor: Color
+        let fillColor: Color
+        
+        if isSubscribed {
+            // Subscribed State
+            borderColor = Theme.surfaceOnSurface
+            fillColor = Theme.surfaceOnSurface
+        } else if isSelected {
+            // Selected State
+            borderColor = Theme.outlineVariant
+            fillColor = .clear
+        } else {
+            // Not Selected State
+            borderColor = Theme.tertiaryOnTertiary
+            fillColor = .clear
+        }
+        
+        return ZStack {
+            // Outer circle with stroke and fill
             Circle()
-                .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 1)
-                .background(Circle().fill(isSelected ? Color.blue : Color.clear))
+                .stroke(borderColor, lineWidth: 1)
+                .background(Circle().fill(fillColor))
                 .frame(width: 20, height: 20)
             
-            if isSelected {
+            if isSubscribed {
+                // Tick in the center for subscribed
                 Image(systemName: "checkmark")
                     .foregroundColor(.white)
-                    .font(Theme.font(size: 12)) 
+                    .font(Theme.font(size: 12))
+            } else if isSelected {
+                Circle()
+                    .fill(Theme.primary)
+                    .frame(width: 12, height: 12)
             }
         }
     }
