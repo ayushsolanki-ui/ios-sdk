@@ -10,12 +10,18 @@ struct PurchaseButtonView: View {
             purchaseButton
             applyCouponButton
         }
+        .padding()
+        .background(Theme.tertiaryBase)
+        .mask(
+            RoundedRectangle(cornerRadius: 16)
+                .padding(.bottom, -UIScreen.main.bounds.height)
+        )
     }
 }
 
 extension PurchaseButtonView {
     private func subscribeButtonTitle() -> String {
-        guard let selectedPlan = store.selectedProduct else { return "Select a Plan" }
+        guard let selectedPlan = store.selectedProduct else { return "Continue" }
         if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription) {
             return "Subscribed"
         } else if store.purchasedSubscription == nil {
@@ -60,7 +66,7 @@ extension PurchaseButtonView {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSubscribeButtonDisabled() ? Theme.tertiaryOnTertiary : Theme.primary)
+            .background(isSubscribeButtonDisabled() ? Color.gray : Theme.primary)
             .cornerRadius(10)
             .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
@@ -76,7 +82,7 @@ extension PurchaseButtonView {
                 Text("Apply Coupon")
                     .font(Theme.font(size: 14))
                     .fontWeight(.semibold)
-                    .foregroundColor(Theme.primary)
+                    .foregroundColor(Theme.bodyText)
                         
             }
             .frame(maxWidth: .infinity)
@@ -87,6 +93,6 @@ extension PurchaseButtonView {
     private var recurringText: some View {
         Text(recurringSubscriptionText)
             .font(Theme.font(size: 12))
-            .foregroundColor(Theme.bodyText)
+            .foregroundColor(Theme.tertiaryOnTertiary)
     }
 }

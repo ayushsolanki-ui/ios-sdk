@@ -221,7 +221,7 @@ class PaymentStore: ObservableObject {
                 await transaction.finish()
                 errorMessage = nil
             case .userCancelled:
-                errorMessage = "User cancelled the purchase"
+                errorMessage = nil
                 
             case .pending:
                 errorMessage = "Purchase is pending"

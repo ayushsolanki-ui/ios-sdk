@@ -29,6 +29,7 @@ struct AppEnvironmentView: View {
                 .background(Theme.errorBackground)
             }
         }
+        .padding()
     }
 }
 

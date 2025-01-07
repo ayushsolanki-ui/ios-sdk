@@ -30,7 +30,7 @@ extension HeaderView {
                         image
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 120)
+                            .frame(height: 40)
                     
                     case .failure:
                         // Empty view if image fails to load
@@ -74,9 +74,9 @@ extension HeaderView {
             restorePurchases()
         }) {
             Text("Restore purchase")
-                .foregroundColor(Theme.secondary)
+                .foregroundColor(Theme.headingText)
                 .font(Theme.font(size: 12))
-                .underline(true, color: Theme.secondary)
+                .underline(true, color: Theme.headingText)
         }
         .padding()
     }

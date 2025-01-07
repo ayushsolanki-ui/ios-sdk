@@ -8,15 +8,17 @@ struct PaymentContentView: View {
             
             if store.isLoading {
                 ProductListSkeleton()
+                    .padding()
             } else if store.availableProducts.count != 0 {
                 HeaderView()
+                    .padding()
                 ProductListView()
+                    .padding()
                 PurchaseButtonView()
             } else {
                 Text("No Products available at this time!")
             }
         }
-        .padding()
     }
 }
 

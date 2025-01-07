@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ProductListItemView: View {
     @EnvironmentObject var store: PaymentStore
+    @Environment(\.colorScheme) var colorScheme
     var product: SubscriptionProduct
     var isSelected: Bool {
         if store.selectedProduct != nil && store.selectedProduct?.productId == product.productId {
@@ -12,10 +13,6 @@ struct ProductListItemView: View {
     
     var isSubscribed: Bool {
         return Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscription)
-    }
-    
-    var cardBackgroundColor: Color {
-        Theme.background
     }
     
     var body: some View {
@@ -38,7 +35,7 @@ struct ProductListItemView: View {
             }
             .padding()
         }
-        .background(cardBackgroundColor)
+        .background(Theme.background)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -50,11 +47,10 @@ struct ProductListItemView: View {
 extension ProductListItemView {
     private var cardBody: some View {
         VStack(alignment: .leading, spacing: 10) {
-            
             Text(product.priceFormatted)
                 .font(Theme.font(size: 18))
                 .fontWeight(.semibold)
-                .foregroundColor(isSubscribed ? .white : .primary)
+                .foregroundColor(.primary)
             
             Text(product.description)
                 .font(Theme.font(size: 14))
@@ -92,7 +88,7 @@ extension ProductListItemView {
             if isSubscribed {
                 // Tick in the center for subscribed
                 Image(systemName: "checkmark")
-                    .foregroundColor(.white)
+                    .foregroundColor(Theme.background)
                     .font(Theme.font(size: 12))
             } else if isSelected {
                 Circle()

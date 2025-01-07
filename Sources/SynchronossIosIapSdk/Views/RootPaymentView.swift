@@ -24,7 +24,7 @@ public struct RootPaymentView: View {
         .padding()
         .sheet(isPresented: $isSheetPresented) {
             mainContent
-                .font(.system(.title, design: .default))
+                .background(Theme.background)
         }
         .background()
         
