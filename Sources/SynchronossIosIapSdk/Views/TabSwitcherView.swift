@@ -28,7 +28,7 @@ extension TabSwitcherView {
                 store.selectedProduct = nil
             }) {
                 Text("Monthly")
-                    .font(.system(size: 14))
+                    .font(Theme.font(size: 14))
                     .foregroundColor(store.tabIndex == 0 ? .white : Theme.primary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
@@ -38,7 +38,7 @@ extension TabSwitcherView {
                 store.selectedProduct = nil
             }) {
                 Text("Yearly")
-                    .font(.system(size: 14).weight(.semibold))
+                    .font(Theme.font(size: 14).weight(.semibold))
                     .foregroundColor(store.tabIndex == 1 ? .white : Theme.primary)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             }

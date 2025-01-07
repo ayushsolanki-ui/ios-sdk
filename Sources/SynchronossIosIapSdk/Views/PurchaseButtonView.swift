@@ -48,7 +48,7 @@ extension PurchaseButtonView {
         }) {
             HStack {
                 Text(subscribeButtonTitle())
-                    .font(.system(size: 14))
+                    .font(Theme.font(size: 14))
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
                         
@@ -74,7 +74,7 @@ extension PurchaseButtonView {
         }) {
             HStack {
                 Text("Apply Coupon")
-                    .font(.system(size: 14))
+                    .font(Theme.font(size: 14))
                     .fontWeight(.semibold)
                     .foregroundColor(Theme.primary)
                         
@@ -86,7 +86,7 @@ extension PurchaseButtonView {
     
     private var recurringText: some View {
         Text(recurringSubscriptionText)
-            .font(.system(size: 12))
+            .font(Theme.font(size: 12))
             .foregroundColor(Theme.secondary)
     }
 }

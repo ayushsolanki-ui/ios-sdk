@@ -26,9 +26,7 @@ struct ProductListItemView: View {
             }
         }
         .padding()
-        .background(
-            cardBackgroundColor
-        )
+        .background(cardBackgroundColor)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
@@ -42,17 +40,17 @@ extension ProductListItemView {
     private var cardBody: some View {
         VStack(alignment: .leading, spacing: 10) {
             Text(product.priceFormatted)
-                .font(.title2)
+                .font(Theme.font(size: 18))
                 .fontWeight(.semibold)
                 .foregroundColor(isSubscribed ? .white : .primary)
             
             Text(product.description)
-                .font(.body)
+                .font(Theme.font(size: 14))
                 .foregroundColor(isSubscribed ? .white : .secondary)
-            
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
+    
     private var radioButton: some View {
         ZStack {
             Circle()
@@ -63,8 +61,9 @@ extension ProductListItemView {
             if isSelected {
                 Image(systemName: "checkmark")
                     .foregroundColor(.white)
-                    .font(.system(size: 12, weight: .bold))
+                    .font(Theme.font(size: 12)) 
             }
         }
     }
 }
+

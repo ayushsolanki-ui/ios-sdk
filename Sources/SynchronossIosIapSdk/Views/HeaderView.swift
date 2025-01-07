@@ -22,9 +22,8 @@ extension HeaderView {
             .resizable()
             .scaledToFit()
             .frame(width: 120)
-        
-        
     }
+    
     private func restorePurchases() {
         Task {
             do {
@@ -35,10 +34,11 @@ extension HeaderView {
             }
         }
     }
+    
     private var titleText: some View {
         Text("Add more storage to keep everything in one place")
             .foregroundColor(Theme.headingText)
-            .font(.system(size: 24).bold())
+            .font(Theme.font(size: 24).bold())
             .multilineTextAlignment(.center)
             .padding(.horizontal)
     }
@@ -49,7 +49,7 @@ extension HeaderView {
         }) {
             Text("Restore purchase")
                 .foregroundColor(Theme.secondary)
-                .font(.system(size: 12))
+                .font(Theme.font(size: 12))
                 .underline(true, color: Theme.secondary)
         }
         .padding()
@@ -65,7 +65,7 @@ extension HeaderView {
             }
         }) {
             Text("Go To Subscriptions")
-                .font(.subheadline)
+                .font(Theme.font(size: 15))
                 .fontWeight(.bold)
                 .foregroundColor(.white)
                 .padding()
