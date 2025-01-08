@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ProductListItemView: View {
     @EnvironmentObject var store: PaymentStore
-    
+    @Environment(\.colorScheme) var colorScheme
     var product: SubscriptionProduct
     var isSelected: Bool {
         if store.selectedProduct != nil && store.selectedProduct?.productId == product.productId {
@@ -11,66 +11,91 @@ struct ProductListItemView: View {
         return false
     }
     
+    var isSubscribed: Bool {
+        return Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscription)
+    }
+    
     var body: some View {
-        HStack{
-            VStack(alignment: .leading, spacing: 10) {
-                Text(product.name)
-                    .font(.title2)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.primary)
-
-                Text(product.description)
-                    .font(.body)
-                    .foregroundColor(.primary)
-
-                Text(product.priceFormatted)
-                    .font(.title3)
-                    .fontWeight(.medium)
-                    .foregroundColor(.blue)
-                        
-                if let introOffer = product.offers.introductoryOffer {
-                    Text("Intro Offer: \(introOffer.priceFormatted) for \(introOffer.recurringSubscriptionPeriod.displayText)")
-                        .font(.callout)
-                        .foregroundColor(.accentColor)
+        VStack {
+            if isSubscribed {
+                VStack(alignment: .leading) {
+                    Text("Current Subscription")
+                        .font(Theme.font(size: 12))
+                        .fontWeight(.semibold)
+                        .foregroundColor(Theme.surfaceOnSurface)
                 }
-                        
-                if Helpers.isProductPurchased(with: product.productId, from: store.purchasedSubscriptions) {
-                    Text("⭐️ Your current plan")
-                        .font(.footnote)
-                        .foregroundColor(.blue)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 8)
+                .padding(.horizontal, 12)
+                .background(Theme.surfaceBase)
             }
-            
-            Spacer()
-            radioButton
+            HStack{
+                cardBody
+                radioButton
+            }
+            .padding()
         }
-        .padding()
-        .background(
-            isSelected
-            ? LinearGradient(gradient: Gradient(colors: [.mint, .cyan]), startPoint: .topLeading, endPoint: .bottomTrailing)
-            : LinearGradient(gradient: Gradient(colors: [Color.gray.opacity(0.2), Color.gray.opacity(0.3)]), startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
+        .background(Theme.background)
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Color.blue : Color.gray.opacity(0.5), lineWidth: 1)
+                .stroke(isSelected ? Theme.primary : Theme.outlineDefault, lineWidth: 1)
         )
     }
 }
 
 extension ProductListItemView {
+    private var cardBody: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(product.priceFormatted)
+                .font(Theme.font(size: 18))
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
+            
+            Text(product.description)
+                .font(Theme.font(size: 14))
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
     private var radioButton: some View {
-        ZStack {
+        // Decide the border color and fill color depending on each state.
+        let borderColor: Color
+        let fillColor: Color
+        
+        if isSubscribed {
+            // Subscribed State
+            borderColor = Theme.surfaceOnSurface
+            fillColor = Theme.surfaceOnSurface
+        } else if isSelected {
+            // Selected State
+            borderColor = Theme.outlineVariant
+            fillColor = .clear
+        } else {
+            // Not Selected State
+            borderColor = Theme.tertiaryOnTertiary
+            fillColor = .clear
+        }
+        
+        return ZStack {
+            // Outer circle with stroke and fill
             Circle()
-                .stroke(isSelected ? Color.blue : Color.gray, lineWidth: 2)
-                .background(Circle().fill(isSelected ? Color.blue : Color.clear))
-                .frame(width: 24, height: 24)
-                
-            if isSelected {
+                .stroke(borderColor, lineWidth: 1)
+                .background(Circle().fill(fillColor))
+                .frame(width: 20, height: 20)
+            
+            if isSubscribed {
+                // Tick in the center for subscribed
                 Image(systemName: "checkmark")
-                    .foregroundColor(.white)
-                    .font(.system(size: 14, weight: .bold))
+                    .foregroundColor(Theme.background)
+                    .font(Theme.font(size: 12))
+            } else if isSelected {
+                Circle()
+                    .fill(Theme.primary)
+                    .frame(width: 12, height: 12)
             }
         }
     }
 }
+

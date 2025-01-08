@@ -130,7 +130,28 @@ enum RecurringSubscriptionPeriod: Codable {
     init(value: Int, unit: Unit) {
         self = .custom(value: value, unit: unit)
     }
-
+    
+    var isYearly: Bool {
+        if case .custom(_, .year) = self {
+            return true
+        }
+        return false
+    }
+    
+    var isMonthly: Bool {
+        if case .custom(_, .month) = self {
+            return true
+        }
+        return false
+    }
+    
+    var isWeekly: Bool {
+        if case .custom(_, .week) = self {
+            return true
+        }
+        return false
+    }
+    
     // Computed property for display text
     var displayText: String {
         switch self {

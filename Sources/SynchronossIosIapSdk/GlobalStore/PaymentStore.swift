@@ -8,17 +8,32 @@ typealias RenewalState = StoreKit.Product.SubscriptionInfo.RenewalState
 
 class PaymentStore: ObservableObject {
     @AppStorage("subscribed") private var isSubscribed: Bool = false
+    
+    @Published var tabIndex: Int = 0
     @Published var serverProducts: [ServerProduct] = []
     @Published var isLoading = true
     @Published var showToast = false
     @Published var errorMessage: String?
-    @Published var userSubscriptionDetails: UserSubscriptionDetails?
+    @Published var userSubscriptionDetails: [UserSubscriptionDetails] = []
     @Published var isPurchaseInProgress: Bool = false
     @Published private(set) var storeProducts: [Product] = []
     @Published var selectedProduct: SubscriptionProduct?
-    @Published private(set) var purchasedSubscriptions: [SubscriptionProduct] = []
+    @Published private(set) var purchasedSubscription: SubscriptionProduct?
+    @Published private(set) var serverProductResponse: ServerProductResponse?
     @Published private(set) var availableProducts: [SubscriptionProduct] = []
     @Published private(set) var productIds: [String] = []
+    
+    var yearlyProducts: [SubscriptionProduct] {
+        return availableProducts.filter { $0.recurringSubscriptionPeriod.isYearly }
+    }
+    
+    var monthlyProducts: [SubscriptionProduct] {
+        return availableProducts.filter { $0.recurringSubscriptionPeriod.isMonthly }
+    }
+    
+    var weeklyProducts: [SubscriptionProduct] {
+        return availableProducts.filter { $0.recurringSubscriptionPeriod.isWeekly }
+    }
     
     var updateListenerTask: Task<Void, Error>? = nil
     
@@ -48,7 +63,7 @@ class PaymentStore: ObservableObject {
         withAnimation {
             showToast = true
         }
-
+        
         Task {
             try await Task.sleep(nanoseconds: 3 * 1_000_000_000)
             withAnimation {
@@ -60,42 +75,45 @@ class PaymentStore: ObservableObject {
     
     @MainActor
     func updateCustomerProductStatus() async {
-        var purchasedSubs: [Product] = []
-
-        var latestTransactions: [String: Transaction] = [:]
-
+        if userSubscriptionDetails.isEmpty {
+            print("userSubscriptionDetails is empty")
+            return
+        }
+        var purchasedSubcriptionId: String?
+        
         for await result in Transaction.currentEntitlements {
             switch result {
             case .unverified:
                 continue
             case .verified(let transaction):
-                guard let subscriptionGroupId = Helpers.getSubscriptionGroupIdentifier(for: transaction, from: storeProducts) else {
-                    continue
-                }
-                print("verified = \(transaction.productID)")
-                if let existingTransaction = latestTransactions[subscriptionGroupId] {
-                    if transaction.purchaseDate > existingTransaction.purchaseDate {
-                        latestTransactions[subscriptionGroupId] = transaction
-                    }
-                } else {
-                    latestTransactions[subscriptionGroupId] = transaction
+                if transaction.productID == userSubscriptionDetails.first?.id {
+                    purchasedSubcriptionId = transaction.productID
                 }
             }
         }
         
-        let latestTransactionProductIDs = Set(Array(latestTransactions.values).map { $0.productID })
-        print("latestTransactionProductIDs = \(latestTransactionProductIDs)")
-        purchasedSubs = storeProducts.filter { product in
-            latestTransactionProductIDs.contains(product.id)
+        if let subscribedProduct = availableProducts.first(where: { $0.id ==  purchasedSubcriptionId}) {
+            self.purchasedSubscription = subscribedProduct
         }
         
-        self.purchasedSubscriptions = SubscriptionProduct.mapSubscriptionProducts(from: purchasedSubs)
         await updateSubscriptionStatus()
+        self.isLoading = false
+    }
+    
+    @MainActor
+    func loadCacheProducts() {
+        guard let cache = CacheManager.loadLocalCache() else {
+            return
+        }
+        if !cache.products.isEmpty {
+            availableProducts = cache.products
+        }
+        
     }
     
     @MainActor
     func updateSubscriptionStatus() async {
-        if purchasedSubscriptions.count > 0 {
+        if purchasedSubscription != nil {
             isSubscribed = true
         } else {
             isSubscribed = false
@@ -108,6 +126,28 @@ class PaymentStore: ObservableObject {
             serverProducts.contains { $0.id == prod.id }
         }
         availableProducts =  Helpers.sortByPrice(SubscriptionProduct.mapSubscriptionProducts(from: products))
+        
+        if let timeStamp = serverProductResponse?.timeStamp {
+            let cacheData = SubscriptionProductCache(timeStamp: timeStamp,
+                                                     products: availableProducts)
+            CacheManager.saveLocalCache(cacheData)
+        }
+    }
+    
+    @MainActor
+    func checkCachedAvailableProducts() async {
+        let timeStamp = serverProductResponse?.timeStamp
+        let isCached = CacheManager.isProductCached(timeStamp)
+        if isCached {
+            print("Cache found")
+            let localCache = CacheManager.loadLocalCache()
+            if let products = localCache?.products {
+                availableProducts = products
+            }
+        } else {
+            print("Cache Not found")
+            await fetchStoreProducts()
+        }
     }
     
     // StoreKit 2 calls
@@ -118,7 +158,7 @@ class PaymentStore: ObservableObject {
                     let transaction = try result.payloadValue
                     await transaction.finish()
                 } catch {
-                   print("Transaction failed in listenForTransactions")
+                    print("Transaction failed in listenForTransactions")
                 }
             }
         }
@@ -127,8 +167,7 @@ class PaymentStore: ObservableObject {
     @MainActor
     func fetchStoreProducts() async {
         if(productIds.isEmpty) {
-            errorMessage = "No Products Ids available."
-            self.isLoading = false
+            errorMessage = "No Products available."
             return
         }
         
@@ -136,16 +175,13 @@ class PaymentStore: ObservableObject {
             let sk2Products = try await storekitService.fetchProductsFromAppStore(for: productIds)
             storeProducts = sk2Products
             self.updateAvaiableProducts();
-            self.isLoading = false
         } catch StoreError.noProductsInStore {
             let errMsg = "Got 0 products in App store."
             errorMessage = errMsg
-            self.isLoading = false
         } catch {
             let errMsg = "Failed to fetch App Store products: \(error.localizedDescription)"
             errorMessage = errMsg
             print("fetchStoreProducts - \(error)")
-            self.isLoading = false
         }
     }
     
@@ -166,6 +202,9 @@ class PaymentStore: ObservableObject {
     func purchaseProduct(with subscriptionProduct: SubscriptionProduct) async {
         print("subscriptionProduct id = \(subscriptionProduct.productId)")
         isPurchaseInProgress = true
+        if storeProducts.isEmpty {
+            await fetchStoreProducts()
+        }
         guard let product = storeProducts.first(where: { $0.id == subscriptionProduct.productId }) else {
             errorMessage = "Product not found in App Store"
             return
@@ -175,22 +214,21 @@ class PaymentStore: ObservableObject {
             switch result {
             case .success(let verification):
                 let transaction: Transaction = try Helpers.checkVerified(verification)
-                print("purchase done - \(transaction)")
                 try await storekitService.sendTransactionDetails(for: transaction, with: userId, using: apiKey, of: subscriptionProduct)
-            
-                await updateCustomerProductStatus()
                 
+                self.purchasedSubscription = subscriptionProduct
+                self.selectedProduct = nil
                 await transaction.finish()
                 errorMessage = nil
             case .userCancelled:
-                errorMessage = "User cancelled the purchase"
-    
+                errorMessage = nil
+                
             case .pending:
                 errorMessage = "Purchase is pending"
-               
+                
             default:
                 errorMessage = "Unknown purchase result"
-               
+                
             }
             isPurchaseInProgress = false
         } catch {
@@ -203,8 +241,8 @@ class PaymentStore: ObservableObject {
     @MainActor
     func fetchUserSubscriptionDetails() async {
         do {
-            let subDetails = try await appService.getUserSubscriptionDetails(for: userId, with: apiKey)
-            self.userSubscriptionDetails = subDetails
+            let subsDetails = try await appService.getUserSubscriptionDetails(for: userId, with: apiKey)
+            self.userSubscriptionDetails = subsDetails
         } catch {
             print("Error fetching user subscription details.")
         }

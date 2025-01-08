@@ -22,4 +22,13 @@ struct AppUtils {
             return false
         }
     }
+    
+    @MainActor
+    static func applySystemColorScheme(_ scheme: ColorScheme) {
+        if scheme == .dark {
+            ThemeManager.shared.switchToDarkMode()
+        } else {
+            ThemeManager.shared.switchToLightMode()
+        }
+    }
 }

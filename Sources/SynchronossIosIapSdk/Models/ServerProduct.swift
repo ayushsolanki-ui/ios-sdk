@@ -6,3 +6,8 @@ struct ServerProduct: Codable, Identifiable {
     }
     let productName: String
 }
+
+struct ServerProductResponse: Codable {
+    let timeStamp: Int64
+    let products: [ServerProduct]
+}

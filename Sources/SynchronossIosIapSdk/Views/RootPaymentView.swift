@@ -1,6 +1,7 @@
 import SwiftUI
 
 public struct RootPaymentView: View {
+    @Environment(\.colorScheme) var colorScheme
     private let apiKey: String
     @State private var showToast: Bool = false
     @State private var isSheetPresented = false
@@ -23,6 +24,7 @@ public struct RootPaymentView: View {
         .padding()
         .sheet(isPresented: $isSheetPresented) {
             mainContent
+                .background(Theme.background)
         }
         .background()
         
@@ -41,10 +43,12 @@ extension RootPaymentView {
         }
         .environmentObject(store)
         .onAppear {
+            AppUtils.applySystemColorScheme(colorScheme)
             Task{ @MainActor in
+                store.loadCacheProducts()
                 await store.fetchUserSubscriptionDetails()
                 await store.fetchSubscriptionPlans(apiKey: apiKey)
-                await store.fetchStoreProducts()
+                await store.checkCachedAvailableProducts()
                 await store.updateCustomerProductStatus()
             }
         }
@@ -57,7 +61,8 @@ extension RootPaymentView {
     
     private var subscriptionButtonText: some View {
         Text("Subscriptions")
-            .font(.headline)
+            .font(Theme.font(size: 20))
+            .fontWeight(.semibold)
             .foregroundColor(.white)
             .frame(minWidth: 100, minHeight: 20)
             .padding()
@@ -72,8 +77,8 @@ extension RootPaymentView {
                 isSheetPresented = false
             }) {
                 Image(systemName: "xmark")
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(.black)
+                    .font(Theme.font(size: 16))
+                    .foregroundColor(Theme.bodyText)
             }
             .padding(.trailing, 16)
             .padding(.top, 16)

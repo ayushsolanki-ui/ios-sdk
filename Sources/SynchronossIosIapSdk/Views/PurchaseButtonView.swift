@@ -1,4 +1,5 @@
 import SwiftUI
+import StoreKit
 
 struct PurchaseButtonView: View {
     @EnvironmentObject var store: PaymentStore
@@ -7,19 +8,26 @@ struct PurchaseButtonView: View {
         VStack(spacing: 8) {
             recurringText
             purchaseButton
+            applyCouponButton
         }
+        .padding()
+        .background(Theme.tertiaryBase)
+        .mask(
+            RoundedRectangle(cornerRadius: 16)
+                .padding(.bottom, -UIScreen.main.bounds.height)
+        )
     }
 }
 
 extension PurchaseButtonView {
     private func subscribeButtonTitle() -> String {
-        guard let selectedPlan = store.selectedProduct else { return "Select a Plan" }
-        if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscriptions) {
+        guard let selectedPlan = store.selectedProduct else { return "Continue" }
+        if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription) {
             return "Subscribed"
-        } else if store.purchasedSubscriptions.isEmpty {
-            return "Subscribe"
+        } else if store.purchasedSubscription == nil {
+            return "Continue"
         } else {
-            return "Change Plan"
+            return "Continue"
         }
     }
         
@@ -28,7 +36,7 @@ extension PurchaseButtonView {
             return true
         }
         guard let selectedPlan = store.selectedProduct else { return true }
-        return Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscriptions)
+        return Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription)
     }
     private var recurringSubscriptionText: String {
         if let product = store.selectedProduct {
@@ -46,8 +54,8 @@ extension PurchaseButtonView {
         }) {
             HStack {
                 Text(subscribeButtonTitle())
-                    .font(.title3)
-                    .fontWeight(.bold)
+                    .font(Theme.font(size: 14))
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                         
                 if store.isPurchaseInProgress {
@@ -58,7 +66,7 @@ extension PurchaseButtonView {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSubscribeButtonDisabled() ? .gray : .blue)
+            .background(isSubscribeButtonDisabled() ? Color.gray : Theme.primary)
             .cornerRadius(10)
             .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
@@ -66,9 +74,25 @@ extension PurchaseButtonView {
 
     }
     
+    private var applyCouponButton: some View {
+        Button(action: {
+            SKPaymentQueue.default().presentCodeRedemptionSheet()
+        }) {
+            HStack {
+                Text("Apply Coupon")
+                    .font(Theme.font(size: 14))
+                    .fontWeight(.semibold)
+                    .foregroundColor(Theme.bodyText)
+                        
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+        }
+    }
+    
     private var recurringText: some View {
         Text(recurringSubscriptionText)
-            .font(.footnote)
-            .foregroundColor(.primary)
+            .font(Theme.font(size: 12))
+            .foregroundColor(Theme.tertiaryOnTertiary)
     }
 }
