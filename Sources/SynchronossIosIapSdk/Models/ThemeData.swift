@@ -26,6 +26,7 @@ struct ThemeVariant: Decodable {
         let surface: SurfaceColor
         let outline: OutlineColor
         let tertiary: TertiaryColor
+        let warning: WarningColor
         let error: ErrorColor
     }
 }
@@ -51,8 +52,13 @@ struct TertiaryColor: Decodable {
     let onTertiary: String
 }
 
-struct ErrorColor: Decodable {
+struct WarningColor: Decodable {
     let text: String
+    let background: String
+    let border: String
+}
+
+struct ErrorColor: Decodable {
     let background: String
     let border: String
 }

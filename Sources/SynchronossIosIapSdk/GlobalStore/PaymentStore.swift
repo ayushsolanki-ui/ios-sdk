@@ -13,7 +13,7 @@ class PaymentStore: ObservableObject {
     @Published var serverProducts: [ServerProduct] = []
     @Published var isLoading = true
     @Published var showToast = false
-    @Published var errorMessage: String?
+    @Published var error: ErrorModel?
     @Published var userSubscriptionDetails: [UserSubscriptionDetails] = []
     @Published var isPurchaseInProgress: Bool = false
     @Published private(set) var storeProducts: [Product] = []
@@ -69,7 +69,7 @@ class PaymentStore: ObservableObject {
             withAnimation {
                 showToast = false
             }
-            errorMessage = nil
+            error = nil
         }
     }
     
@@ -150,6 +150,10 @@ class PaymentStore: ObservableObject {
         }
     }
     
+    func setError(_ title: String, _ description: String) {
+        error = ErrorModel(title: "Error", message: "No Products available.")
+    }
+    
     // StoreKit 2 calls
     func listenForTransactions() -> Task<Void, Error> {
         return Task.detached {
@@ -167,7 +171,7 @@ class PaymentStore: ObservableObject {
     @MainActor
     func fetchStoreProducts() async {
         if(productIds.isEmpty) {
-            errorMessage = "No Products available."
+            setError("Error", "No Products available.");
             return
         }
         
@@ -177,10 +181,10 @@ class PaymentStore: ObservableObject {
             self.updateAvaiableProducts();
         } catch StoreError.noProductsInStore {
             let errMsg = "Got 0 products in App store."
-            errorMessage = errMsg
+            setError("Error", errMsg);
         } catch {
             let errMsg = "Failed to fetch App Store products: \(error.localizedDescription)"
-            errorMessage = errMsg
+            setError("Error", errMsg);
             print("fetchStoreProducts - \(error)")
         }
     }
@@ -192,7 +196,8 @@ class PaymentStore: ObservableObject {
             self.serverProducts = try await appService.loadSubscriptionPlans(apiKey: apiKey)
             self.updateProductIds();
         } catch {
-            self.errorMessage = "Failed to load subscription plans: \(error.localizedDescription)"
+            let errorMessage = "Failed to load subscription plans: \(error.localizedDescription)"
+            setError("Error", errorMessage);
             self.isLoading = false
             print("fetchSubscriptionPlans - \(error)")
         }
@@ -206,33 +211,36 @@ class PaymentStore: ObservableObject {
             await fetchStoreProducts()
         }
         guard let product = storeProducts.first(where: { $0.id == subscriptionProduct.productId }) else {
-            errorMessage = "Product not found in App Store"
+            setError("Error", "Product not found in App Store");
             return
         }
         do {
             let result = try await storekitService.purchaseStoreProduct(product, userId)
             switch result {
             case .success(let verification):
-                let transaction: Transaction = try Helpers.checkVerified(verification)
-                try await storekitService.sendTransactionDetails(for: transaction, with: userId, using: apiKey, of: subscriptionProduct)
+                let receipt = verification.jwsRepresentation
+                try await appService.sendVerifiedCheck(userId, apiKey, receipt)
                 
                 self.purchasedSubscription = subscriptionProduct
                 self.selectedProduct = nil
+                let transaction: Transaction = try Helpers.checkVerified(verification)
                 await transaction.finish()
-                errorMessage = nil
+                error = nil
             case .userCancelled:
-                errorMessage = nil
+                // setError("Error", "Purchase Cancelled");
+               error = nil
                 
             case .pending:
-                errorMessage = "Purchase is pending"
+                setError("Error", "Purchase is pending");
                 
             default:
-                errorMessage = "Unknown purchase result"
+                setError("Error", "Unknown purchase result");
                 
             }
             isPurchaseInProgress = false
         } catch {
-            errorMessage = "Purchase failed: \(error.localizedDescription)"
+            let errorMessage = "Purchase failed: \(error.localizedDescription)"
+            setError("Error", errorMessage);
             isPurchaseInProgress = false
         }
         

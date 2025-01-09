@@ -51,7 +51,7 @@ extension HeaderView {
             do {
                 try await AppStore.sync()
             } catch {
-                store.errorMessage = "Failed to restore"
+                store.setError("Error", "Failed to restore")
                 print("Failed to restore: \(error.localizedDescription)")
             }
         }
@@ -87,7 +87,7 @@ extension HeaderView {
             do {
                 try AppUtils.openSubscriptionSettings()
             } catch {
-                store.errorMessage = error.localizedDescription
+                store.setError("Error", error.localizedDescription)
             }
         }) {
             Text("Go To Subscriptions")

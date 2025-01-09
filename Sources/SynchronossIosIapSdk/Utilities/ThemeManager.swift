@@ -22,8 +22,12 @@ let fallbackLightThemeVariant = ThemeVariant.Colors(
         base: "#FFFFFF",
         onTertiary: "#6B7280"
     ),
-    error: ErrorColor(
+    warning: WarningColor(
         text: "#D76C1F",
+        background: "#FFF9F5",
+        border: "#FECDAA"
+    ),
+    error: ErrorColor(
         background: "#FFF9F5",
         border: "#FECDAA"
     )
@@ -51,8 +55,12 @@ let fallbackDarkThemeVariant = ThemeVariant.Colors(
         base: "#212121",
         onTertiary: "#FEFEFF"
     ),
-    error: ErrorColor(
+    warning: WarningColor(
         text: "#D76C1F",
+        background: "#FFF9F5",
+        border: "#FECDAA"
+    ),
+    error: ErrorColor(
         background: "#FFF9F5",
         border: "#FECDAA"
     )

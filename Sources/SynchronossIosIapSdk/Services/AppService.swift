@@ -28,7 +28,8 @@ struct AppService {
         }
     }
     
-    func sendVerifiedCheck(transaction: TransactionDetails, apiKey: String) async throws {
+    func sendVerifiedCheck(_ userId: String, _ apiKey: String, _ receipt: String) async throws {
+        let transaction = TransactionDetails.mapTransactionToDetails(userId, receipt);
         let urlString = baseUrl + "/api/iap/ios/handle"
         let url = URL(string: urlString)
                 

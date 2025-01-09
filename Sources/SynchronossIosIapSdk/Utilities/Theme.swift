@@ -68,11 +68,20 @@ struct Theme {
         Color(hex: variant.tertiary.onTertiary)
     }
     
-    // MARK: - Error
-    static var errorText: Color {
-        Color(hex: variant.error.text)
+    // MARK: - Warning
+    static var warningText: Color {
+        Color(hex: variant.warning.text)
     }
     
+    static var warningBackground: Color {
+        Color(hex: variant.warning.background)
+    }
+    
+    static var warningBorder: Color {
+        Color(hex: variant.warning.border)
+    }
+    
+    // MARK: - Error
     static var errorBackground: Color {
         Color(hex: variant.error.background)
     }

@@ -52,7 +52,7 @@ extension RootPaymentView {
                 await store.updateCustomerProductStatus()
             }
         }
-        .onChange(of: store.errorMessage) { newValue in
+        .onChange(of: store.error?.message) { newValue in
             if newValue != nil {
                 store.showToastForLimitedTime()
             }
