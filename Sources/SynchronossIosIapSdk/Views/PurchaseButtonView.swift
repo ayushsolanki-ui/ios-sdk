@@ -67,7 +67,7 @@ extension PurchaseButtonView {
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
             .background(isSubscribeButtonDisabled() ? Color.gray : Theme.primary)
-            .cornerRadius(10)
+            .cornerRadius(999)
             .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
         .disabled(isSubscribeButtonDisabled())
