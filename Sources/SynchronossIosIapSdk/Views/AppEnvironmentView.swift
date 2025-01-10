@@ -22,11 +22,14 @@ struct AppEnvironmentView: View {
                     }
                 }
                 .padding()
-                .overlay(
+                .background(
                     RoundedRectangle(cornerRadius: 8)
-                        .stroke(Theme.warningTertiary, lineWidth: 1)
+                        .fill(Theme.warningSecondary)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Theme.warningTertiary, lineWidth: 1)
+                        )
                 )
-                .background(Theme.warningSecondary)
             }
         }
         .padding()
