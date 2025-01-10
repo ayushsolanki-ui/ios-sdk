@@ -12,7 +12,6 @@ struct AppService {
             request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
             let (data, _) = try await session.data(for: request)
             let themeList = try JSONDecoder().decode([ServerThemeModel].self, from: data)
-            print("theme = \(themeList)")
             return themeList
         } catch {
             print("theme error = \(error)")
@@ -27,7 +26,6 @@ struct AppService {
             request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
             let (data, _) = try await session.data(for: request)
             let userSubDetails = try JSONDecoder().decode(ActiveUserResponse.self, from: data)
-            print("userSubDetails = \(userSubDetails)")
             return userSubDetails
         } catch {
             print("userSubDetails errpr= \(error)")
@@ -74,8 +72,6 @@ struct AppService {
             request.httpBody = jsonData
             
             let (_, response) = try await session.data(for: request)
-
-            print("send transactionDetails success = \(transactionDetails)")
             
             if let httpResponse = response as? HTTPURLResponse {
                 return httpResponse.statusCode == 200
