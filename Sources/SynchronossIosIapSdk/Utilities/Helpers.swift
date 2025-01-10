@@ -2,7 +2,7 @@ import Foundation
 import StoreKit
 
 struct Helpers {
-    static func sortByPrice(_ products: [SubscriptionProduct]) -> [SubscriptionProduct] {
+    static func sortByPrice(_ products: [ServerProduct]) -> [ServerProduct] {
         products.sorted(by: {return $0.price > $1.price})
     }
 
@@ -26,7 +26,11 @@ struct Helpers {
         return storeProducts.first(where: { $0.id == productId })
     }
     
-    static func isProductPurchased(with productId: String, from product: SubscriptionProduct?) -> Bool {
+    static func getServerProduct(with productId: String, from serverProduct: [ServerProduct]) -> ServerProduct? {
+        return serverProduct.first(where: { $0.id == productId })
+    }
+    
+    static func isProductPurchased(with productId: String, from product: ServerProduct?) -> Bool {
         if product != nil, product?.id == productId {
             return true
         }

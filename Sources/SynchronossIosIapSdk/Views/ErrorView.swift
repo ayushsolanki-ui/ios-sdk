@@ -20,7 +20,7 @@ extension ErrorView {
         HStack(alignment: .top, spacing: 0) {
             // Left accent bar
             Rectangle()
-                .fill(Theme.errorBorder)
+                .fill(Theme.errorPrimary)
                 .frame(width: 4)
             
             // Main content
@@ -28,11 +28,11 @@ extension ErrorView {
                 Text(store.error?.title ?? "Error")
                     .font(Theme.font(size: 16))
                     .fontWeight(.semibold)
-                    .foregroundColor(Theme.headingText)
+                    .foregroundColor(Theme.textSecondary)
                 
                 Text(store.error?.message ?? "")
                     .font(.subheadline)
-                    .foregroundColor(Theme.bodyText)
+                    .foregroundColor(Theme.textSecondary)
             }
             .padding(.leading, 12)
             .padding(.vertical, 12)
@@ -44,7 +44,7 @@ extension ErrorView {
                 store.error = nil
             }) {
                 Image(systemName: "xmark")
-                    .foregroundColor(Theme.bodyText)
+                    .foregroundColor(Theme.textSecondary)
                     .padding()
             }
             .buttonStyle(PlainButtonStyle())
@@ -52,7 +52,7 @@ extension ErrorView {
         // The key line: fix the vertical size to the content
         .fixedSize(horizontal: false, vertical: true)
         
-        .background(Theme.errorBackground)
+        .background(Theme.errorSecondary)
         .cornerRadius(8)
         .padding(.bottom, 50)
         .transition(.move(edge: .bottom).combined(with: .opacity))

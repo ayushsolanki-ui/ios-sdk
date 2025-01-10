@@ -1,11 +1,16 @@
 import Foundation
-import StoreKit
+
+struct ActiveUserResponse: Codable {
+    let subscriptionResponseDTO: UserSubscriptionDetails?
+    let productUpdateTimeStamp: Int64?
+    let themConfigTimeStamp: Int64?
+}
 
 struct UserSubscriptionDetails: Codable, Identifiable {
     var id: String {
-        return productName
+        return productId
     }
-    let productName: String
+    let productId: String
     let serviceLevel: String
     let vendorName: String
     let appName: String
@@ -14,10 +19,8 @@ struct UserSubscriptionDetails: Codable, Identifiable {
     let partnerUserId: String
     let startDate: Int
     let endDate: Int
-    let originalTransactionId: String
     let status: String
     let type: String
-    let originalPurchaseDate: Int
 }
 
 struct UserSubscriptionDetailsPayload : Codable {

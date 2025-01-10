@@ -9,7 +9,7 @@ struct PaymentContentView: View {
             if store.isLoading {
                 ProductListSkeleton()
                     .padding()
-            } else if store.availableProducts.count != 0 {
+            } else if store.serverProducts.count != 0 {
                 HeaderView()
                     .padding()
                 ProductListView()
@@ -17,6 +17,8 @@ struct PaymentContentView: View {
                 PurchaseButtonView()
             } else {
                 Text("No Products available at this time!")
+                    .font(Theme.font(size: 18))
+                    .foregroundColor(Theme.textPrimary)
             }
         }
     }

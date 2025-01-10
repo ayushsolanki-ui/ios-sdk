@@ -25,17 +25,17 @@ extension HeaderView {
                             .fill(Color(white: 0.9))
                             .frame(width: 40, height: 40)
                             .shimmer()
-                    
+                        
                     case .success(let image):
                         image
                             .resizable()
                             .scaledToFit()
                             .frame(height: 40)
-                    
+                        
                     case .failure:
                         // Empty view if image fails to load
                         EmptyView()
-                    
+                        
                     @unknown default:
                         EmptyView()
                     }
@@ -59,7 +59,7 @@ extension HeaderView {
     
     private var titleText: some View {
         Text("Add more storage to keep everything in one place")
-            .foregroundColor(Theme.headingText)
+            .foregroundColor(Theme.textPrimary)
             .font(Theme.font(size: 24))
             .fontWeight(.bold)
             .lineSpacing(4)
@@ -74,31 +74,31 @@ extension HeaderView {
             restorePurchases()
         }) {
             Text("Restore purchase")
-                .foregroundColor(Theme.headingText)
+                .foregroundColor(Theme.actionPrimary)
                 .font(Theme.font(size: 12))
-                .underline(true, color: Theme.headingText)
+                .underline(true, color: Theme.actionPrimary)
         }
         .padding()
     }
     
     // Unused for now
-    private var goToSubscriptionButton: some View {
-        Button(action: {
-            do {
-                try AppUtils.openSubscriptionSettings()
-            } catch {
-                store.setError("Error", error.localizedDescription)
-            }
-        }) {
-            Text("Go To Subscriptions")
-                .font(Theme.font(size: 15))
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-                .padding()
-                .background(.blue)
-                .cornerRadius(10)
-                .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
-        }
-    }
+    //    private var goToSubscriptionButton: some View {
+    //        Button(action: {
+    //            do {
+    //                try AppUtils.openSubscriptionSettings()
+    //            } catch {
+    //                store.setError("Error", error.localizedDescription)
+    //            }
+    //        }) {
+    //            Text("Go To Subscriptions")
+    //                .font(Theme.font(size: 15))
+    //                .fontWeight(.bold)
+    //                .foregroundColor(.white)
+    //                .padding()
+    //                .background(.blue)
+    //                .cornerRadius(10)
+    //                .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
+    //        }
+    //    }
 }
 

@@ -11,7 +11,7 @@ struct PurchaseButtonView: View {
             applyCouponButton
         }
         .padding()
-        .background(Theme.tertiaryBase)
+        .background(Theme.actionSecondary)
         .mask(
             RoundedRectangle(cornerRadius: 16)
                 .padding(.bottom, -UIScreen.main.bounds.height)
@@ -40,7 +40,7 @@ extension PurchaseButtonView {
     }
     private var recurringSubscriptionText: String {
         if let product = store.selectedProduct {
-            return "Plan auto-renews for \(product.priceFormatted)\(product.recurringSubscriptionPeriod.recurringText) until canceled."
+            return "Plan auto-renews for \(product.displayPrice)\(product.recurringPeriodCode.recurringText) until canceled."
         }
         return ""
     }
@@ -48,6 +48,7 @@ extension PurchaseButtonView {
         Button(action: {
             if let selectedPlan = store.selectedProduct {
                 Task {
+                    print("Purchase Button pressed = \(selectedPlan.id)")
                     await store.purchaseProduct(with: selectedPlan)
                 }
             }
@@ -66,7 +67,7 @@ extension PurchaseButtonView {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 12)
-            .background(isSubscribeButtonDisabled() ? Color.gray : Theme.primary)
+            .background(isSubscribeButtonDisabled() ? Theme.primary.opacity(0.4) : Theme.primary)
             .cornerRadius(999)
             .shadow(color: .gray.opacity(0.4), radius: 4, x: 0, y: 2)
         }
@@ -82,7 +83,7 @@ extension PurchaseButtonView {
                 Text("Apply Coupon")
                     .font(Theme.font(size: 14))
                     .fontWeight(.semibold)
-                    .foregroundColor(Theme.bodyText)
+                    .foregroundColor(Theme.actionPrimary)
                         
             }
             .frame(maxWidth: .infinity)
@@ -93,6 +94,6 @@ extension PurchaseButtonView {
     private var recurringText: some View {
         Text(recurringSubscriptionText)
             .font(Theme.font(size: 12))
-            .foregroundColor(Theme.tertiaryOnTertiary)
+            .foregroundColor(Theme.textSecondary)
     }
 }

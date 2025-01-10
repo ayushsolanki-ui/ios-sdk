@@ -2,8 +2,6 @@ import SwiftUI
 
 public struct RootPaymentView: View {
     @Environment(\.colorScheme) var colorScheme
-    private let apiKey: String
-    @State private var showToast: Bool = false
     @State private var isSheetPresented = false
     @StateObject private var store: PaymentStore
     
@@ -11,7 +9,6 @@ public struct RootPaymentView: View {
         userId: String,
         apiKey: String
     ) {
-        self.apiKey = apiKey
         _store = StateObject(wrappedValue: PaymentStore(userId: userId, apiKey: apiKey))
         
     }
@@ -43,13 +40,8 @@ extension RootPaymentView {
         }
         .environmentObject(store)
         .onAppear {
-            AppUtils.applySystemColorScheme(colorScheme)
             Task{ @MainActor in
-                store.loadCacheProducts()
-                await store.fetchUserSubscriptionDetails()
-                await store.fetchSubscriptionPlans(apiKey: apiKey)
-                await store.checkCachedAvailableProducts()
-                await store.updateCustomerProductStatus()
+                await store.initPaymentPlatform()
             }
         }
         .onChange(of: store.error?.message) { newValue in
@@ -78,7 +70,7 @@ extension RootPaymentView {
             }) {
                 Image(systemName: "xmark")
                     .font(Theme.font(size: 16))
-                    .foregroundColor(Theme.bodyText)
+                    .foregroundColor(Theme.textSecondary)
             }
             .padding(.trailing, 16)
             .padding(.top, 16)

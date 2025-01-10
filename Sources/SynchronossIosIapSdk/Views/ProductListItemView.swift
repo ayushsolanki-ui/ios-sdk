@@ -3,7 +3,7 @@ import SwiftUI
 struct ProductListItemView: View {
     @EnvironmentObject var store: PaymentStore
     @Environment(\.colorScheme) var colorScheme
-    var product: SubscriptionProduct
+    var product: ServerProduct
     var isSelected: Bool {
         if store.selectedProduct != nil && store.selectedProduct?.productId == product.productId {
             return true
@@ -22,12 +22,12 @@ struct ProductListItemView: View {
                     Text("Current Subscription")
                         .font(Theme.font(size: 12))
                         .fontWeight(.semibold)
-                        .foregroundColor(Theme.surfaceOnSurface)
+                        .foregroundColor(Theme.successPrimary)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
-                .background(Theme.surfaceBase)
+                .background(Theme.successSecondary)
             }
             HStack{
                 cardBody
@@ -39,7 +39,7 @@ struct ProductListItemView: View {
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(isSelected ? Theme.primary : Theme.outlineDefault, lineWidth: 1)
+                .stroke(isSelected ? Theme.primary : Theme.textSecondary, lineWidth: 1)
         )
     }
 }
@@ -47,14 +47,14 @@ struct ProductListItemView: View {
 extension ProductListItemView {
     private var cardBody: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text(product.priceFormatted)
+            Text(product.displayPrice)
                 .font(Theme.font(size: 18))
                 .fontWeight(.semibold)
-                .foregroundColor(.primary)
+                .foregroundColor(Theme.textPrimary)
             
             Text(product.description)
                 .font(Theme.font(size: 14))
-                .foregroundColor(.secondary)
+                .foregroundColor(Theme.textSecondary)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -66,16 +66,16 @@ extension ProductListItemView {
         
         if isSubscribed {
             // Subscribed State
-            borderColor = Theme.surfaceOnSurface
-            fillColor = Theme.surfaceOnSurface
+            borderColor = Theme.textSecondary
+            fillColor = Theme.background
         } else if isSelected {
             // Selected State
-            borderColor = Theme.outlineVariant
-            fillColor = .clear
+            borderColor = Theme.primary
+            fillColor = Theme.background
         } else {
             // Not Selected State
-            borderColor = Theme.tertiaryOnTertiary
-            fillColor = .clear
+            borderColor = Theme.textSecondary
+            fillColor = Theme.background
         }
         
         return ZStack {
