@@ -125,8 +125,10 @@ class PaymentStore: ObservableObject {
             } else {
                 setError("Error", "Purchase Unsuccessful.");
             }
+            isPurchaseInProgress = false
         } catch {
             setError("Transaction Failed!", "Purchase Unsuccessful.")
+            isPurchaseInProgress = false
         }
         await transaction.finish()
     }
@@ -165,6 +167,7 @@ class PaymentStore: ObservableObject {
                     isPurchaseInProgress = true
 //                    let receipt = result.jwsRepresentation
                     let transaction = try result.payloadValue
+                    isPurchaseInProgress = false
                     await transaction.finish()
 //                    await handleTransaction(receipt, transaction)
                 } catch {

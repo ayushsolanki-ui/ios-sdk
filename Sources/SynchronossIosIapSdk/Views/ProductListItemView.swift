@@ -66,8 +66,8 @@ extension ProductListItemView {
         
         if isSubscribed {
             // Subscribed State
-            borderColor = Theme.textSecondary
-            fillColor = Theme.background
+            borderColor = Theme.successPrimary
+            fillColor = Theme.successPrimary
         } else if isSelected {
             // Selected State
             borderColor = Theme.primary
