@@ -112,6 +112,7 @@ class PaymentStore: ObservableObject {
     @MainActor
     func handleTransaction(_ receipt: String, _ transaction: Transaction) async {
         isPurchaseInProgress = true
+        defer { isPurchaseInProgress = false }
         do {
             let success = try await appService.sendVerifiedCheck(userId, apiKey, receipt, transaction)
             print("handleTransaction success = \(success)")
@@ -125,10 +126,8 @@ class PaymentStore: ObservableObject {
             } else {
                 setError("Error", "Purchase Unsuccessful.");
             }
-            isPurchaseInProgress = false
         } catch {
             setError("Transaction Failed!", "Purchase Unsuccessful.")
-            isPurchaseInProgress = false
         }
         await transaction.finish()
     }
@@ -165,37 +164,39 @@ class PaymentStore: ObservableObject {
                 print("listenForTransactions started")
                 do {
                     isPurchaseInProgress = true
-//                    let receipt = result.jwsRepresentation
+                    //                    let receipt = result.jwsRepresentation
                     let transaction = try result.payloadValue
                     isPurchaseInProgress = false
                     await transaction.finish()
-//                    await handleTransaction(receipt, transaction)
+                    //                    await handleTransaction(receipt, transaction)
                 } catch {
                     let errorMessage = error.localizedDescription
                     setError("Error", errorMessage);
-                    isPurchaseInProgress = false
                 }
             }
         }
     }
     
     @MainActor
-    func fetchStoreProducts(_ productIds: [String]) async {
+    func fetchStoreProducts(_ productIds: [String]) async -> [Product]? {
         if(productIds.isEmpty) {
             setError("Error", "No Products available.");
-            return
+            return nil
         }
         
         do {
             let sk2Products = try await storekitService.fetchProductsFromAppStore(for: productIds)
             storeProducts = sk2Products
+            return sk2Products
         } catch StoreError.noProductsInStore {
             let errMsg = "Got 0 products in App store."
             setError("Error", errMsg);
+            return nil
         } catch {
             let errMsg = "Failed to fetch App Store products: \(error.localizedDescription)"
             setError("Error", errMsg);
             print("fetchStoreProducts - \(error)")
+            return nil
         }
     }
     
@@ -227,22 +228,27 @@ class PaymentStore: ObservableObject {
     @MainActor
     func purchaseProduct(with serverProduct: ServerProduct) async {
         isPurchaseInProgress = true
+        defer { isPurchaseInProgress = false }
         
         let purchasingProductId = serverProduct.id
         print("purchasingProductId id = \(purchasingProductId)")
         
-        let purchasingStoreProduct : Product? = Helpers.getStoreProduct(with: purchasingProductId, from: storeProducts)
+        let purchasingStoreProduct: Product? = Helpers.getStoreProduct(with: purchasingProductId, from: storeProducts)
+        var products: [Product]?
         if storeProducts.isEmpty || purchasingStoreProduct == nil  {
-            await fetchStoreProducts([purchasingProductId])
+            products = await fetchStoreProducts([purchasingProductId])
+        } else {
+            products = [purchasingStoreProduct!]
         }
-        let storeProduct = Helpers.getStoreProduct(with: purchasingProductId, from: storeProducts)
-        guard let product = storeProduct else {
-            isPurchaseInProgress = false
+
+        guard let storeProducts = products,
+              let storeProduct = Helpers.getStoreProduct(with: purchasingProductId, from: storeProducts) else {
+            setError("Unavailable", "Product could not be found.");
             return
         }
         
         do {
-            let result = try await storekitService.purchaseStoreProduct(product, userId)
+            let result = try await storekitService.purchaseStoreProduct(storeProduct, userId)
             switch result {
             case .success(let verification):
                 let receipt = verification.jwsRepresentation
@@ -260,11 +266,9 @@ class PaymentStore: ObservableObject {
                 setError("Error", "Unknown purchase result");
                 
             }
-            isPurchaseInProgress = false
         } catch {
             let errorMessage = "Purchase failed: \(error.localizedDescription)"
             setError("Error", errorMessage);
-            isPurchaseInProgress = false
         }
         
     }
