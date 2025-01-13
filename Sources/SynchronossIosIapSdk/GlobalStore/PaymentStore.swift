@@ -37,7 +37,7 @@ class PaymentStore: ObservableObject {
         return serverProducts.filter { $0.recurringPeriodCode.isWeekly }
     }
     
-    var updateListenerTask: Task<Void, Never>? = nil
+    var updateListenerTask: Task<Void, Error>? = nil
     
     let appService = AppService();
     let storekitService = StoreKitService();
@@ -57,11 +57,11 @@ class PaymentStore: ObservableObject {
     @MainActor
     func initPaymentPlatform() async {
         isLoading = true
+        defer { isLoading = false }
         await fetchActiveUserDetails()
         await handleCachedTheme()
         await handleCachedProducts()
         await updateSubscriptionStatus()
-        isLoading = false
     }
     
     // observable methods
@@ -114,17 +114,16 @@ class PaymentStore: ObservableObject {
         isPurchaseInProgress = true
         defer { isPurchaseInProgress = false }
         do {
-            let success = try await appService.sendVerifiedCheck(userId, apiKey, receipt, transaction)
-            print("handleTransaction success = \(success)")
-            if success {
-                await MainActor.run {
-                    self.purchasedSubscription = self.serverProducts.first {
-                        $0.id == transaction.productID
-                    }
-                    self.selectedProduct = nil
+            let resp = try await appService.sendVerifiedCheck(userId, apiKey, receipt, transaction)
+            guard let sub = resp.data, resp.code == 200 else {
+                setError(resp.title, resp.message)
+                return
+            }
+            await MainActor.run {
+                self.purchasedSubscription = self.serverProducts.first {
+                    $0.id == sub.productId
                 }
-            } else {
-                setError("Error", "Purchase Unsuccessful.");
+                self.selectedProduct = nil
             }
         } catch {
             setError("Transaction Failed!", "Purchase Unsuccessful.")
@@ -156,22 +155,19 @@ class PaymentStore: ObservableObject {
     }
     
     // StoreKit 2 calls
-    func listenForTransactions() -> Task<Void, Never> {
-        return Task { [weak self] in
-            guard let self = self else { return }
+    func listenForTransactions() -> Task<Void, Error> {
+        return Task.detached {
             print("Starting transaction listener...")
             for await result in Transaction.updates {
-                print("listenForTransactions started")
                 do {
-                    isPurchaseInProgress = true
-                    //                    let receipt = result.jwsRepresentation
-                    let transaction = try result.payloadValue
-                    isPurchaseInProgress = false
+                    let receipt = result.jwsRepresentation
+                    let transaction: Transaction = try Helpers.checkVerified(result)
+                    print("listenForTransactions started = \(transaction.productID)")
+                    await self.handleTransaction(receipt, transaction)
                     await transaction.finish()
-                    //                    await handleTransaction(receipt, transaction)
                 } catch {
                     let errorMessage = error.localizedDescription
-                    setError("Error", errorMessage);
+                    print("Error in listenForTransactions: \(errorMessage)")
                 }
             }
         }
@@ -205,17 +201,27 @@ class PaymentStore: ObservableObject {
     func fetchAppTheme() async -> [ServerThemeModel] {
         do {
             let response = try await appService.getAppTheme(apiKey)
-            return response
+            guard let themes = response.data, response.code == 200 else {
+                print("Theme Api Error");
+                setError(response.title, response.message)
+                return []
+            }
+            return themes
         } catch {
             print("App theme fetch failed: \(error.localizedDescription)")
+            setError("Error", error.localizedDescription)
             return []
         }
     }
     
     @MainActor
-    func fetchServerProducts() async -> [ServerProduct]{
+    func fetchServerProducts() async -> [ServerProduct] {
         do {
-            let products = try await appService.loadSubscriptionPlans(apiKey)
+            let response = try await appService.loadSubscriptionPlans(apiKey)
+            guard let products = response.data, response.code == 200 else {
+                setError(response.title, response.message)
+                return []
+            }
             return products
         } catch {
             let errorMessage = "Failed to fetch products: \(error.localizedDescription)"
@@ -251,10 +257,11 @@ class PaymentStore: ObservableObject {
             let result = try await storekitService.purchaseStoreProduct(storeProduct, userId)
             switch result {
             case .success(let verification):
-                let receipt = verification.jwsRepresentation
+                // let receipt = verification.jwsRepresentation
                 let transaction: Transaction = try Helpers.checkVerified(verification)
-                await handleTransaction(receipt, transaction);
+                // await handleTransaction(receipt, transaction);
                 print("Product purchase successfull: \(purchasingProductId)")
+                await transaction.finish()
             case .userCancelled:
                 print("User cancelled the purchase")
                 // setError("Error", "Purchase Cancelled");
@@ -276,10 +283,15 @@ class PaymentStore: ObservableObject {
     @MainActor
     func fetchActiveUserDetails() async {
         do {
-            let activeUser = try await appService.getUserSubscriptionDetails(for: userId, with: apiKey)
-            self.activeUserDetails = activeUser
+            let response = try await appService.getUserSubscriptionDetails(for: userId, with: apiKey)
+            guard let details = response.data, response.code == 200 else {
+                setError(response.title, response.message)
+                return
+            }
+            self.activeUserDetails = details
         } catch {
             print("Error fetching user subscription details.")
+            setError("Unknown Error", error.localizedDescription)
         }
     }
 }

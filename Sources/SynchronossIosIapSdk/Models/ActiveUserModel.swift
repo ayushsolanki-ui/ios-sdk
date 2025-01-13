@@ -1,5 +1,13 @@
 import Foundation
 
+struct BaseResponse<T: Codable & Sendable>: Codable, Sendable {
+    let code: Int
+    let title: String
+    let message: String
+    let data: T?
+}
+
+
 struct ActiveUserResponse: Codable {
     let subscriptionResponseDTO: UserSubscriptionDetails?
     let productUpdateTimeStamp: Int64?
