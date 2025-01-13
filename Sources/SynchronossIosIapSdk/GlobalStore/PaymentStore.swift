@@ -246,7 +246,7 @@ class PaymentStore: ObservableObject {
         } else {
             products = [purchasingStoreProduct!]
         }
-
+        
         guard let storeProducts = products,
               let storeProduct = Helpers.getStoreProduct(with: purchasingProductId, from: storeProducts) else {
             setError("Unavailable", "Product could not be found.");
@@ -257,9 +257,9 @@ class PaymentStore: ObservableObject {
             let result = try await storekitService.purchaseStoreProduct(storeProduct, userId)
             switch result {
             case .success(let verification):
-                // let receipt = verification.jwsRepresentation
+                let receipt = verification.jwsRepresentation
                 let transaction: Transaction = try Helpers.checkVerified(verification)
-                // await handleTransaction(receipt, transaction);
+                await handleTransaction(receipt, transaction);
                 print("Product purchase successfull: \(purchasingProductId)")
                 await transaction.finish()
             case .userCancelled:
