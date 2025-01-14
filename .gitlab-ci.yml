@@ -1,34 +1,100 @@
-stages:
-  - build
-  - test
-  - sonarqube
+image: swift:latest
 
 variables:
-  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar" # Directory for SonarQube analysis data
-  GIT_DEPTH: "0" # Ensure full Git history is available for analysis
+  SONAR_USER_HOME: "${CI_PROJECT_DIR}/.sonar"  # Location of the analysis task cache
+  GIT_DEPTH: "0"  # Fetch all branches of the project, required by the analysis task
+  SONAR_SCANNER_VERSION: "4.7.0.2747"  # SonarScanner version compatible with SonarQube
+  SONAR_PROJECT_KEY: "client-projects_synchronous_ios-sdk_4ce2649d-d68d-43ca-8de6-5c0b6853e405"  # Define your project key
+
+stages:
+  - build
+  - sonarqube-check
+  - sonarqube-vulnerability-report
 
 cache:
-  key: "${CI_COMMIT_REF_SLUG}"
+  key: "${CI_COMMIT_SHORT_SHA}"
   paths:
     - .sonar/cache
+    - Pods/  # If using CocoaPods
 
-sonarqube-analysis:
-  image:
-    name: sonarsource/sonar-scanner-cli:latest
-    entrypoint: [""]
-  stage: sonarqube
-  script:
-    - sonar-scanner
-  rules:
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"'
-      when: always
+before_script:
+  - apt-get update && apt-get install -y unzip
+
+# Job to install dependencies and SonarScanner
+build:
+  stage: build
   tags:
-    - mac
-    - ios
-    - sonar
-  variables:
-    SONAR_TOKEN: "${SONAR_TOKEN}"
-  artifacts:
+    - swift-runner  # Replace with your actual Runner tag
+  cache:
+    policy: push
+    key: "${CI_COMMIT_SHORT_SHA}"
     paths:
-      - .sonar/cache
-  allow_failure: false
+      - sonar-scanner/
+      - Pods/  # Cache dependencies if using CocoaPods
+  script:
+    # Install CocoaPods dependencies
+    - pod install  # Uncomment if using CocoaPods
+    # OR, if using Swift Package Manager:
+    # - swift package resolve
+
+    # Download SonarScanner
+    - curl -sSLo sonar-scanner.zip "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip"
+    - unzip -o sonar-scanner.zip
+    - mv sonar-scanner-${SONAR_SCANNER_VERSION}-linux sonar-scanner
+    - rm sonar-scanner.zip
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+
+# Job to perform SonarQube analysis
+sonarqube-check:
+  stage: sonarqube-check
+  tags:
+    - swift-runner  # Ensure this matches the Runner's tag
+  dependencies:
+    - build
+  cache:
+    policy: pull
+    key: "${CI_COMMIT_SHORT_SHA}"
+    paths:
+      - sonar-scanner/
+      - Pods/  # If using CocoaPods
+  script:
+    # Build the Swift project to generate necessary artifacts for analysis
+    - xcodebuild -workspace YourProject.xcworkspace -scheme YourScheme -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 12,OS=14.4' clean build
+    # Run SonarScanner
+    - ./sonar-scanner/bin/sonar-scanner \
+        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+        -Dsonar.sources=. \
+        -Dsonar.host.url="${SONAR_HOST_URL}" \
+        -Dsonar.login="${SONAR_TOKEN}" \
+        -Dsonar.swift.xcodebuild.reportPaths=build/reports \
+        -Dsonar.ios.xcodeproj.path=YourProject.xcodeproj
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+
+# Job to fetch and store the vulnerability report
+sonarqube-vulnerability-report:
+  stage: sonarqube-vulnerability-report
+  tags:
+    - swift-runner  # Ensure this matches the Runner's tag
+  dependencies:
+    - sonarqube-check
+  script:
+    - curl -u "${SONAR_TOKEN}:" "${SONAR_HOST_URL}/api/issues/gitlab_sast_export?projectKey=${SONAR_PROJECT_KEY}&branch=${CI_COMMIT_BRANCH}&pullRequest=${CI_MERGE_REQUEST_IID}" -o gl-sast-sonar-report.json
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == 'merge_request_event'
+    - if: $CI_COMMIT_BRANCH == 'master'
+    - if: $CI_COMMIT_BRANCH == 'main'
+    - if: $CI_COMMIT_BRANCH == 'develop'
+  artifacts:
+    expire_in: 1 day
+    reports:
+      sast: gl-sast-sonar-report.json
