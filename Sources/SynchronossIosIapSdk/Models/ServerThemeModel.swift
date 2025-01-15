@@ -1,6 +1,6 @@
 import Foundation
 
-struct ServerThemeModel: Codable, Identifiable {
+struct ServerThemeModel: Codable, Identifiable, Equatable {
     var id: String {
         return themeName
     }

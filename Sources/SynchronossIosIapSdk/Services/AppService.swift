@@ -1,9 +1,25 @@
 import Foundation
 
-struct AppService {
-    let baseUrl = "https://sync-api.blr0.geekydev.com"
+protocol AppServiceProtocol {
+    func getAppTheme(_ apiKey: String) async throws -> BaseResponse<[ServerThemeModel]>
+    func getUserSubscriptionDetails(for userId: String, with apiKey: String) async throws -> BaseResponse<ActiveUserResponse>
+    func loadSubscriptionPlans(_ apiKey: String) async throws -> BaseResponse<[ServerProduct]>
+    func sendVerifiedCheck(
+        _ userId: String,
+        _ apiKey: String,
+        _ receipt: String,
+        _ transaction: Transaction
+    ) async throws -> BaseResponse<UserSubscriptionDetails>
+}
 
-    let session = URLSession.shared
+struct AppService: AppServiceProtocol {
+    let baseUrl = "https://sync-api.blr0.geekydev.com"
+    let session: URLSession
+    
+    // Initialize with dependency injection for URLSession to facilitate mocking if needed
+    init(session: URLSession = .shared) {
+        self.session = session
+    }
     
     func getAppTheme(_ apiKey: String) async throws -> BaseResponse<[ServerThemeModel]> {
         do {
@@ -28,7 +44,7 @@ struct AppService {
             let resp = try JSONDecoder().decode(BaseResponse<ActiveUserResponse>.self, from: data)
             return resp
         } catch {
-            print("userSubDetails errpr= \(error)")
+            print("userSubDetails error= \(error)")
             throw error
         }
     }

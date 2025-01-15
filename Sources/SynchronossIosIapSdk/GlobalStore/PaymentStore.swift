@@ -121,7 +121,7 @@ class PaymentStore: ObservableObject {
             }
             await MainActor.run {
                 self.purchasedSubscription = self.serverProducts.first {
-                    $0.id == sub.productId
+                    $0.id == sub.id
                 }
                 self.selectedProduct = nil
             }
@@ -143,11 +143,11 @@ class PaymentStore: ObservableObject {
         
         if let subscribedProduct = serverProducts.first(where: { $0.id ==  purchasedSubcriptionId}) {
             self.purchasedSubscription = subscribedProduct
-            isSubscribed = true
         }
         else {
-            isSubscribed = false
+            serverProducts.append(subscribedProduct.product)
         }
+        isSubscribed = true
     }
     
     func setError(_ title: String, _ description: String) {

@@ -16,10 +16,9 @@ struct ActiveUserResponse: Codable {
 
 struct UserSubscriptionDetails: Codable, Identifiable {
     var id: String {
-        return productId
+        return product.productId
     }
-    let productId: String
-    let serviceLevel: String
+    let product: ServerProduct
     let vendorName: String
     let appName: String
     let appPlatformID: String
