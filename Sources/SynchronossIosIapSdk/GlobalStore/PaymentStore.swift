@@ -39,8 +39,8 @@ class PaymentStore: ObservableObject {
     
     var updateListenerTask: Task<Void, Error>? = nil
     
-    let appService = AppService();
-    let storekitService = StoreKitService();
+    var appService = AppService();
+    var storekitService = StoreKitService();
     
     let userId: String
     let apiKey: String
@@ -50,6 +50,7 @@ class PaymentStore: ObservableObject {
         self.apiKey = apiKey
         updateListenerTask = listenForTransactions()
     }
+    
     deinit {
         updateListenerTask?.cancel()
     }
@@ -62,6 +63,10 @@ class PaymentStore: ObservableObject {
         await handleCachedTheme()
         await handleCachedProducts()
         await updateSubscriptionStatus()
+    }
+
+    func setAppService(_ appService: AppService) {
+        self.appService = appService
     }
     
     // observable methods
