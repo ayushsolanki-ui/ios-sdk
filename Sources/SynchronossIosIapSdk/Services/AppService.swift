@@ -8,7 +8,7 @@ protocol AppServiceProtocol {
         _ userId: String,
         _ apiKey: String,
         _ receipt: String,
-        _ transaction: Transaction
+        _ transaction: Transaction?
     ) async throws -> BaseResponse<UserSubscriptionDetails>
 }
 
@@ -66,7 +66,7 @@ struct AppService: AppServiceProtocol {
         _ userId: String,
         _ apiKey: String,
         _ receipt: String,
-        _ transaction: Transaction
+        _ transaction: Transaction?
     ) async throws -> BaseResponse<UserSubscriptionDetails> {
         
         let transactionDetails = TransactionDetails.mapTransactionToDetails(userId, receipt, transaction)

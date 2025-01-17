@@ -2,7 +2,7 @@ import XCTest
 @testable import SynchronossIosIapSdk
 
 @MainActor
-final class ProductsTests: XCTestCase {
+final class GetProductsTests: XCTestCase {
     
     override func setUp() async throws {
         // Optional: clear the subscription products cache so each test starts fresh

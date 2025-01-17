@@ -15,13 +15,13 @@ struct StoreKitService: StoreKitServicing {
         }
         do {
             let allStoreProducts = try await Product.products(for: productIds)
-            if allStoreProducts.count == 0 {
+            if allStoreProducts.isEmpty {
                 throw StoreError.noProductsInStore
             }
             return allStoreProducts
         } catch {
             print("fetchProductsFromAppStore error = \(error)")
-            throw error;
+            throw error
         }
     }
     
