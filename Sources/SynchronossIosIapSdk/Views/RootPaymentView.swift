@@ -10,7 +10,6 @@ public struct RootPaymentView: View {
         apiKey: String
     ) {
         _store = StateObject(wrappedValue: PaymentStore(userId: userId, apiKey: apiKey))
-        
     }
     public var body: some View {
         Button(action: {
@@ -24,7 +23,6 @@ public struct RootPaymentView: View {
                 .background(Theme.background)
         }
         .background()
-        
     }
 }
 
@@ -40,7 +38,7 @@ extension RootPaymentView {
         }
         .environmentObject(store)
         .onAppear {
-            Task{ @MainActor in
+            Task { @MainActor in
                 await store.initPaymentPlatform()
             }
         }
