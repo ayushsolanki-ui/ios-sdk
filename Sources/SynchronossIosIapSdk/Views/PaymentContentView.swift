@@ -7,6 +7,7 @@ struct PaymentContentView: View {
     var body: some View {
         VStack {
             AppEnvironmentView()
+                .padding()
                 .accessibilityHidden(true)
             
             if store.isLoading {
