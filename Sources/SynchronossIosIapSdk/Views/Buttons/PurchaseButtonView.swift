@@ -22,7 +22,7 @@ struct PurchaseButtonView: View {
 extension PurchaseButtonView {
     private func subscribeButtonTitle() -> String {
         guard let selectedPlan = store.selectedProduct else { return "Continue" }
-        if Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription) {
+        if Helpers.isProductPurchased(selectedPlan.productId, store.purchasedSubscription) {
             return "Subscribed"
         } else if store.purchasedSubscription == nil {
             return "Continue"
@@ -36,7 +36,7 @@ extension PurchaseButtonView {
             return true
         }
         guard let selectedPlan = store.selectedProduct else { return true }
-        return Helpers.isProductPurchased(with: selectedPlan.productId, from: store.purchasedSubscription)
+        return Helpers.isProductPurchased(selectedPlan.productId, store.purchasedSubscription)
     }
     private var recurringSubscriptionText: String {
         if let product = store.selectedProduct {

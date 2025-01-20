@@ -30,7 +30,7 @@ struct Helpers {
         return serverProduct.first(where: { $0.id == productId })
     }
     
-    static func isProductPurchased(with productId: String, from product: ServerProduct?) -> Bool {
+    static func isProductPurchased(_ productId: String, _ product: ServerProduct?) -> Bool {
         if product != nil, product?.id == productId {
             return true
         }
