@@ -4,14 +4,16 @@ import SwiftUI
 /// A utility struct providing theme-related constants and methods.
 @MainActor
 struct Theme {
+    
+    static let secondaryStatic = "#6B7280"
     /// Default light theme
     static let fallbackLightTheme = ThemeData(
         logoUrl: "",
         primary: "#0096d5",
         secondary: "#E7F8FF",
         background: "#FFFFFF",
-        text: TextType(primary: "#1F2937", secondary: "#6B7280"),
-        action: Action(primary: "#6B7280", secondary: "#FFFFFF"),
+        text: TextType(primary: "#1F2937", secondary: secondaryStatic),
+        action: Action(primary: secondaryStatic, secondary: "#FFFFFF"),
         success: Success(primary: "#2A7948", secondary: "#E4FFF4"),
         warning: Warning(primary: "#D76C1F", secondary: "#FFF9F5", tertiary: "#FECDAA"),
         error: ErrorTheme(primary: "#F98181", secondary: "#FEF1F1")
@@ -23,7 +25,7 @@ struct Theme {
         primary: "#0096d5",
         secondary: "#262627",
         background: "#0D0D0D",
-        text: TextType(primary: "#FEFEFF", secondary: "#6B7280"),
+        text: TextType(primary: "#FEFEFF", secondary: secondaryStatic),
         action: Action(primary: "#F9FAFB", secondary: "#212121"),
         success: Success(primary: "#E4FFF4", secondary: "#2A7948"),
         warning: Warning(primary: "#D76C1F", secondary: "#FFF9F5", tertiary: "#FECDAA"),
