@@ -5,6 +5,7 @@ enum ApiError: LocalizedError {
     case networkError
     case unauthorized
     case invalidURL
+    case invalidUserId
     case unknown
     
     var localizedDescription: String? {
@@ -15,6 +16,8 @@ enum ApiError: LocalizedError {
             return NSLocalizedString("You are not authorized to perform this action.", comment: "Error when the user is unauthorized.")
         case .invalidURL:
             return NSLocalizedString("The URL provided was invalid.", comment: "Error when the URL is malformed.")
+        case .invalidUserId:
+            return NSLocalizedString("The UserID provided is invalid.", comment: "Error in USER_ID.")
         case .unknown:
             return NSLocalizedString("An unknown error occurred. Please contact support.", comment: "Generic unknown error.")
         }
