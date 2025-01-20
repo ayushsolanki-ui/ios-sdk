@@ -1,9 +1,11 @@
 import Foundation
 
+// MARK: - ServerProduct Definition
+
+/// Represents a product available for purchase from the server.
 struct ServerProduct: Codable, Identifiable {
-    var id: String {
-        return productId
-    }
+    /// The unique identifier for the product, conforming to `Identifiable`.
+    var id: String { productId }
     let productId: String
     let displayName: String
     let description: String
@@ -13,9 +15,13 @@ struct ServerProduct: Codable, Identifiable {
     let productType: String
 }
 
+// MARK: - RecurringPeriodCache Definition
+
+/// Represents the recurring period of a subscription.
 enum RecurringPeriodCache: Codable {
     case custom(value: Int, unit: Unit)
     
+    /// Represents the unit of the recurring period.
     enum Unit: String, Codable {
         case day   = "D"
         case week  = "W"
@@ -23,15 +29,18 @@ enum RecurringPeriodCache: Codable {
         case year  = "Y"
     }
     
+    /// The prefix used in raw value strings.
+    private static let prefix = "P"
+    
     /// Creates a `.custom` case from a raw string like "P1M", "P1W", "P1Y".
     /// Returns `nil` if the format is invalid.
     init?(rawValue: String) {
         // Expecting something like "P1W", "P1M", "P2M", "P1Y", etc.
-        guard rawValue.starts(with: "P"), rawValue.count >= 3 else {
+        guard rawValue.hasPrefix(RecurringPeriodCache.prefix), rawValue.count >= 3 else {
             return nil
         }
         
-        // Remove the "P" -> e.g. "1W"
+        // Remove the prefix "P" -> e.g. "1W"
         let periodPart = rawValue.dropFirst()
         
         // Last character should be D/W/M/Y
@@ -52,7 +61,7 @@ enum RecurringPeriodCache: Codable {
     
     // MARK: - Codable Conformance
     
-    /// Decodes from something like `"P1W"` or the explicit structure if you want.
+    /// Decodes from a string like `"P1W"` or the explicit structure if needed.
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let rawString = try container.decode(String.self)
@@ -67,55 +76,72 @@ enum RecurringPeriodCache: Codable {
         self = parsed
     }
     
-    /// Encodes back to something like "P1W".
+    /// Encodes back to a string like "P1W".
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         
         // Convert .custom(value: 1, unit: .week) -> "P1W"
         switch self {
         case .custom(let value, let unit):
-            try container.encode("P\(value)\(unit.rawValue)")
+            try container.encode("\(RecurringPeriodCache.prefix)\(value)\(unit.rawValue)")
         }
     }
     
     // MARK: - Convenience Checks
     
+    /// Checks if the recurring period is yearly.
     var isYearly: Bool {
-        if case .custom(_, .year) = self { return true }
-        return false
+        return hasUnit(.year)
     }
     
+    /// Checks if the recurring period is monthly.
     var isMonthly: Bool {
-        if case .custom(_, .month) = self { return true }
-        return false
+        return hasUnit(.month)
     }
     
+    /// Checks if the recurring period is weekly.
     var isWeekly: Bool {
-        if case .custom(_, .week) = self { return true }
-        return false
+        return hasUnit(.week)
     }
     
+    /// Checks if the recurring period is daily.
     var isDaily: Bool {
-        if case .custom(_, .day) = self { return true }
+        return hasUnit(.day)
+    }
+    
+    /// Helper method to check if the recurring period matches the specified unit.
+    ///
+    /// - Parameter unit: The unit to check against.
+    /// - Returns: `true` if the recurring period matches the unit; otherwise, `false`.
+    private func hasUnit(_ unit: Unit) -> Bool {
+        if case .custom(_, let currentUnit) = self, currentUnit == unit {
+            return true
+        }
         return false
     }
     
-    // MARK: - Display Helpers (Optional)
+    // MARK: - Display Helpers
     
+    /// Provides a user-friendly display text for the recurring period.
     var displayText: String {
         switch self {
         case .custom(let value, let unit):
             let unitText: String
             switch unit {
-            case .day:   unitText = value > 1 ? "Days"   : "Day"
-            case .week:  unitText = value > 1 ? "Weeks"  : "Week"
-            case .month: unitText = value > 1 ? "Months" : "Month"
-            case .year:  unitText = value > 1 ? "Years"  : "Year"
+            case .day:
+                unitText = value > 1 ? "Days" : "Day"
+            case .week:
+                unitText = value > 1 ? "Weeks" : "Week"
+            case .month:
+                unitText = value > 1 ? "Months" : "Month"
+            case .year:
+                unitText = value > 1 ? "Years" : "Year"
             }
             return "\(value) \(unitText)"
         }
     }
     
+    /// Provides a user-friendly recurring text for the subscription.
     var recurringText: String {
         switch self {
         case .custom(let value, let unit):
@@ -132,7 +158,3 @@ enum RecurringPeriodCache: Codable {
         }
     }
 }
-
-
-
-

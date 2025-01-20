@@ -1,28 +1,41 @@
 import SwiftUI
 
+/// A view that displays the payment content, including product listings and purchase options.
 struct PaymentContentView: View {
-    @EnvironmentObject var store: PaymentStore
+    @EnvironmentObject private var store: PaymentStore
+
     var body: some View {
         VStack {
             AppEnvironmentView()
+                .padding()
+                .accessibilityHidden(true)
             
             if store.isLoading {
                 ProductListSkeleton()
                     .padding()
-            } else if store.serverProducts.count != 0 {
+                    .accessibilityLabel("Loading products")
+            } else if !store.serverProducts.isEmpty {
                 ScrollView(.vertical, showsIndicators: false) {
                     HeaderView()
                         .padding()
+                        .accessibilityHidden(true)
                     ProductListView()
                         .padding()
                 }
                 PurchaseButtonView()
+                    .accessibilityLabel("Purchase Products")
             } else {
-                Text("No Products available at this time!")
+                Text(LocalizedString.noProductsAvailable)
                     .font(Theme.font(size: 18))
                     .foregroundColor(Theme.textPrimary)
+                    .padding()
+                    .accessibilityLabel("No products available at this time")
             }
         }
     }
 }
 
+// MARK: - Localized Strings
+private struct LocalizedString {
+    static let noProductsAvailable = NSLocalizedString("No Products available at this time!", comment: "No products message")
+}

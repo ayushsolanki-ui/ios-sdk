@@ -1,41 +1,46 @@
 import SwiftUI
 
+/// A view that displays error messages as toast notifications.
 struct ErrorView: View {
-    @EnvironmentObject var store: PaymentStore
+    @EnvironmentObject private var store: PaymentStore
+
     var body: some View {
-        Group {
-            if store.showToast, store.error != nil {
-                VStack {
-                    Spacer()
-                    toastView
-                }
-                .padding()
+        if store.showToast, let error = store.error {
+            VStack {
+                Spacer()
+                toastView(error: error)
             }
+            .padding()
         }
     }
 }
 
 extension ErrorView {
-    private var toastView: some View {
+    /// The toast view displaying the error message.
+    /// - Parameter error: The error to display.
+    private func toastView(error: ErrorModel) -> some View {
         HStack(alignment: .top, spacing: 0) {
             // Left accent bar
             Rectangle()
                 .fill(Theme.errorPrimary)
                 .frame(width: 4)
+                .accessibilityHidden(true)
             
             // Main content
             VStack(alignment: .leading, spacing: 4) {
-                Text(store.error?.title ?? "Error")
+                Text(error.title)
                     .font(Theme.font(size: 16))
                     .fontWeight(.semibold)
                     .foregroundColor(Theme.textSecondary)
                 
-                Text(store.error?.message ?? "")
+                Text(error.message)
                     .font(.subheadline)
                     .foregroundColor(Theme.textSecondary)
             }
             .padding(.leading, 12)
             .padding(.vertical, 12)
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel("\(error.title): \(error.message)")
             
             Spacer()
             
@@ -46,12 +51,12 @@ extension ErrorView {
                 Image(systemName: "xmark")
                     .foregroundColor(Theme.textSecondary)
                     .padding()
+                    .accessibilityLabel("Close error message")
             }
             .buttonStyle(PlainButtonStyle())
         }
-        // The key line: fix the vertical size to the content
+        // Fix the vertical size to the content
         .fixedSize(horizontal: false, vertical: true)
-        
         .background(Theme.errorSecondary)
         .cornerRadius(8)
         .padding(.bottom, 50)
