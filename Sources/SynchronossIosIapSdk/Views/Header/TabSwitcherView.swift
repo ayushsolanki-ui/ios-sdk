@@ -11,12 +11,6 @@ struct TabSwitcherView: View {
         LocalizedString.yearly
     ]
     
-    /// The height of the TabSwitcherView.
-    private let viewHeight: CGFloat = 40.0
-    
-    /// The corner radius used for background shapes.
-    private let cornerRadius: CGFloat = 8.0
-    
     var body: some View {
         GeometryReader { proxy in
             let numberOfTabs = CGFloat(tabs.count)
@@ -28,7 +22,7 @@ struct TabSwitcherView: View {
                 tabButtons
             }
         }
-        .frame(height: viewHeight)
+        .frame(height: 40)
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Subscription Tabs")
         .accessibilityHint("Swipe or tap to switch between subscription plans.")
@@ -41,27 +35,37 @@ extension TabSwitcherView {
     private var tabButtons: some View {
         HStack(spacing: 0) {
             ForEach(tabs.indices, id: \.self) { index in
-                Button(action: {
-                    withAnimation(.easeInOut) {
-                        store.tabIndex = index
-                        store.selectedProduct = nil
-                    }
-                }) {
-                    Text(tabs[index])
-                        .font(Theme.font(size: 14))
-                        .foregroundColor(store.tabIndex == index ? .white : Theme.primary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                        .accessibilityLabel(tabs[index])
-                        .accessibilityAddTraits(store.tabIndex == index ? .isSelected : [])
-                        .accessibilityHint("Tap to select the \(tabs[index]) subscription.")
-                }
+                tabButton(for: index)
             }
+        }
+    }
+    
+    /// A helper method that returns a button for each tab.
+    private func tabButton(for index: Int) -> some View {
+        Button(action: {
+            onTabTapped(index)
+        }) {
+            Text(tabs[index])
+                .font(Theme.font(size: 14))
+                .foregroundColor(store.tabIndex == index ? .white : Theme.primary)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .accessibilityLabel(tabs[index])
+                .accessibilityAddTraits(store.tabIndex == index ? .isSelected : [])
+                .accessibilityHint("Tap to select the \(tabs[index]) subscription.")
+        }
+    }
+    
+    /// Action to handle tab selection.
+    private func onTabTapped(_ index: Int) {
+        withAnimation(.easeInOut) {
+            store.tabIndex = index
+            store.selectedProduct = nil
         }
     }
     
     /// The static background behind the tabs.
     private var staticBackground: some View {
-        RoundedRectangle(cornerRadius: cornerRadius)
+        RoundedRectangle(cornerRadius: 8)
             .fill(Theme.secondary)
             .frame(height: 48)
             .accessibilityHidden(true)
@@ -72,12 +76,12 @@ extension TabSwitcherView {
     /// - Returns: A view representing the animated background.
     private func animatedBackground(tabWidth: CGFloat) -> some View {
         // How much horizontal “inset” you want on each side inside the tab
-        let horizontalInset: CGFloat = 4.0
+        let horizontalInset: CGFloat = 4
         
         // The capsule is narrower by twice the inset (left + right).
         let capsuleWidth = tabWidth - (horizontalInset * 2)
         
-        return RoundedRectangle(cornerRadius: cornerRadius)
+        return RoundedRectangle(cornerRadius: 8)
             .fill(Theme.primary)
             .frame(width: capsuleWidth, height: 40)
             // Move the background according to the currently selected tab

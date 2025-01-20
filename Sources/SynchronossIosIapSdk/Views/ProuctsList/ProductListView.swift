@@ -9,16 +9,27 @@ struct ProductListView: View {
     
     var body: some View {
         VStack(spacing: itemSpacing) {
-            ForEach(currentProducts, id: \.productId) { product in
-                ProductListItemView(product: product)
-                    .onTapGesture {
-                        handleProductTap(product)
-                    }
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel(product.displayName)
-                    .accessibilityHint("Double tap to select this product.")
-            }
+            productListItems
         }
+    }
+    
+    /// A computed property to generate the list of product items.
+    private var productListItems: some View {
+        ForEach(currentProducts, id: \.productId) { product in
+            productItemView(for: product)
+        }
+    }
+    
+    /// A method to return the `ProductListItemView` for each product.
+    /// - Parameter product: The product to display.
+    private func productItemView(for product: ServerProduct) -> some View {
+        ProductListItemView(product: product)
+            .onTapGesture {
+                handleProductTap(product)
+            }
+            .accessibilityElement(children: .combine)
+            .accessibilityLabel(product.displayName)
+            .accessibilityHint("Double tap to select this product.")
     }
     
     /// Determines the list of products to display based on the current tab index.

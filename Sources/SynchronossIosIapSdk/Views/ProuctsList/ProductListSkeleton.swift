@@ -5,35 +5,42 @@ struct ProductListSkeleton: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: 20) {
-                VStack(spacing: 15) {
-                    Circle()
-                        .fill(Color(white: 0.9))
-                        .frame(height: 120)
-                        .shimmer()
-                        .accessibilityHidden(true)
-                    
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.6))
-                        .frame(width: 150, height: 14)
-                        .cornerRadius(8)
-                        .accessibilityHidden(true)
-                    
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.4))
-                        .frame(width: 100, height: 14)
-                        .cornerRadius(8)
-                        .accessibilityHidden(true)
-                }
-                .padding(.top, 20)
-                
-                ForEach(0..<3) { _ in
-                    SkeletonCard()
-                }
+                topSkeleton
+                skeletonCards
             }
             .padding()
         }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Loading products")
+    }
+    
+    private var topSkeleton: some View {
+        VStack(spacing: 15) {
+            Circle()
+                .fill(Color(white: 0.9))
+                .frame(height: 120)
+                .shimmer()
+                .accessibilityHidden(true)
+            
+            Rectangle()
+                .fill(Color.gray.opacity(0.6))
+                .frame(width: 150, height: 14)
+                .cornerRadius(8)
+                .accessibilityHidden(true)
+            
+            Rectangle()
+                .fill(Color.gray.opacity(0.4))
+                .frame(width: 100, height: 14)
+                .cornerRadius(8)
+                .accessibilityHidden(true)
+        }
+        .padding(.top, 20)
+    }
+
+    private var skeletonCards: some View {
+        ForEach(0..<3) { _ in
+            SkeletonCard()
+        }
     }
 }
 
@@ -48,28 +55,32 @@ private struct SkeletonCard: View {
                 .shimmer()
                 .accessibilityHidden(true)
             
-            VStack(alignment: .leading, spacing: 14) {
-                Rectangle()
-                    .fill(Color.gray.opacity(0.8))
-                    .frame(width: 200, height: 16)
-                    .cornerRadius(8)
-                    .accessibilityHidden(true)
-                
-                Rectangle()
-                    .fill(Color.gray.opacity(0.6))
-                    .frame(width: 150, height: 14)
-                    .cornerRadius(8)
-                    .accessibilityHidden(true)
-                
-                Rectangle()
-                    .fill(Color.gray.opacity(0.4))
-                    .frame(width: 100, height: 14)
-                    .cornerRadius(8)
-                    .accessibilityHidden(true)
-            }
-            .padding(30)
+            skeletonContent
         }
         .accessibilityHidden(true)
+    }
+    
+    private var skeletonContent: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Rectangle()
+                .fill(Color.gray.opacity(0.8))
+                .frame(width: 200, height: 16)
+                .cornerRadius(8)
+                .accessibilityHidden(true)
+            
+            Rectangle()
+                .fill(Color.gray.opacity(0.6))
+                .frame(width: 150, height: 14)
+                .cornerRadius(8)
+                .accessibilityHidden(true)
+            
+            Rectangle()
+                .fill(Color.gray.opacity(0.4))
+                .frame(width: 100, height: 14)
+                .cornerRadius(8)
+                .accessibilityHidden(true)
+        }
+        .padding(30)
     }
 }
 
@@ -116,38 +127,34 @@ private struct ShimmerEffect: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .overlay(
-                GeometryReader { geometry in
-                    let width = geometry.size.width
-                    let height = geometry.size.height
-                    
-                    // Build a vertical gradient that we'll rotate
-                    let gradient = LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(opacityLow),
-                            Color.white.opacity(opacityHigh),
-                            Color.white.opacity(opacityLow)
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                    
-                    Rectangle()
-                        .fill(gradient)
-                        // Slight rotation for a diagonal shimmer line
-                        .rotationEffect(.degrees(angle))
-                        // Make the shimmer rectangle large enough
-                        .frame(width: width / 2, height: height * 2)
-                        // Translate it across the entire card
-                        .offset(x: move * 2 * width)
-                }
-                .mask(content)  // Mask the shimmer overlay to the shape of the original content
-            )
+            .overlay(shimmerOverlay(content: content))
             .onAppear {
                 withAnimation(Animation.linear(duration: duration).repeatForever(autoreverses: false)) {
-                    // Move from -1.0 (far left) to +1.0 (far right)
                     self.move = 1.0
                 }
             }
+    }
+    
+    private func shimmerOverlay(content: Content) -> some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            let height = geometry.size.height
+            
+            let gradient = LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.white.opacity(opacityLow),
+                    Color.white.opacity(opacityHigh),
+                    Color.white.opacity(opacityLow)
+                ]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            
+            return Rectangle()
+                .fill(gradient)
+                .rotationEffect(.degrees(angle))
+                .frame(width: width / 2, height: height * 2)
+                .offset(x: move * 2 * width)
+        }
     }
 }
