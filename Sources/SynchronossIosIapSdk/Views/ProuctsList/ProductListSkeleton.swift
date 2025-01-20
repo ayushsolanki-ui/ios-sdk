@@ -1,12 +1,6 @@
-//
-//  SwiftUIView.swift
-//  SynchronossIosIapSdk
-//
-//  Created by Monisankar Nath on 23/12/24.
-//
-
 import SwiftUI
 
+/// A view that displays a skeleton loader for the product list.
 struct ProductListSkeleton: View {
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
@@ -16,16 +10,19 @@ struct ProductListSkeleton: View {
                         .fill(Color(white: 0.9))
                         .frame(height: 120)
                         .shimmer()
+                        .accessibilityHidden(true)
                     
                     Rectangle()
                         .fill(Color.gray.opacity(0.6))
                         .frame(width: 150, height: 14)
                         .cornerRadius(8)
+                        .accessibilityHidden(true)
                     
                     Rectangle()
                         .fill(Color.gray.opacity(0.4))
                         .frame(width: 100, height: 14)
                         .cornerRadius(8)
+                        .accessibilityHidden(true)
                 }
                 .padding(.top, 20)
                 
@@ -35,43 +32,55 @@ struct ProductListSkeleton: View {
             }
             .padding()
         }
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Loading products")
     }
 }
 
-struct SkeletonCard: View {
+/// A view that represents a single skeleton card in the product list.
+private struct SkeletonCard: View {
     var body: some View {
-        
         ZStack(alignment: .topLeading) {
             Rectangle()
                 .fill(Color(white: 0.9))
                 .frame(height: 150)
                 .cornerRadius(8)
                 .shimmer()
+                .accessibilityHidden(true)
             
             VStack(alignment: .leading, spacing: 14) {
                 Rectangle()
                     .fill(Color.gray.opacity(0.8))
                     .frame(width: 200, height: 16)
                     .cornerRadius(8)
+                    .accessibilityHidden(true)
                 
                 Rectangle()
                     .fill(Color.gray.opacity(0.6))
                     .frame(width: 150, height: 14)
                     .cornerRadius(8)
+                    .accessibilityHidden(true)
                 
                 Rectangle()
                     .fill(Color.gray.opacity(0.4))
                     .frame(width: 100, height: 14)
                     .cornerRadius(8)
+                    .accessibilityHidden(true)
             }
             .padding(30)
         }
-        
+        .accessibilityHidden(true)
     }
 }
 
 extension View {
-    /// Use this convenience method to apply the shimmer effect to any View
+    /// Applies a shimmer effect to the view.
+    /// - Parameters:
+    ///   - duration: Duration of the shimmer animation in seconds.
+    ///   - angle: The angle (in degrees) at which the shimmer gradient is rotated.
+    ///   - opacityHigh: The maximum opacity for the shimmer gradient.
+    ///   - opacityLow: The minimum opacity for the shimmer gradient.
+    /// - Returns: A view with a shimmer effect applied.
     func shimmer(
         duration: Double = 1.5,
         angle: Double = 20.0,
@@ -89,24 +98,27 @@ extension View {
     }
 }
 
-struct ShimmerEffect: ViewModifier {
+/// A view modifier that adds a shimmer effect to any view.
+private struct ShimmerEffect: ViewModifier {
     @State private var move: CGFloat = -1.0
     
-    /// Duration of the shimmer animation in seconds
+    /// Duration of the shimmer animation in seconds.
     var duration: Double = 1.2
     
-    /// The angle (in degrees) at which the shimmer gradient is rotated
+    /// The angle (in degrees) at which the shimmer gradient is rotated.
     var angle: Double = 20.0
     
-    /// The maximum and minimum opacities for the shimmer gradient
+    /// The maximum opacity for the shimmer gradient.
     var opacityHigh: Double = 0.6
+    
+    /// The minimum opacity for the shimmer gradient.
     var opacityLow: Double = 0.3
     
     func body(content: Content) -> some View {
         content
             .overlay(
                 GeometryReader { geometry in
-                    let width  = geometry.size.width
+                    let width = geometry.size.width
                     let height = geometry.size.height
                     
                     // Build a vertical gradient that we'll rotate
@@ -122,14 +134,14 @@ struct ShimmerEffect: ViewModifier {
                     
                     Rectangle()
                         .fill(gradient)
-                    // Slight rotation for a diagonal shimmer line
+                        // Slight rotation for a diagonal shimmer line
                         .rotationEffect(.degrees(angle))
-                    // Make the shimmer rectangle large enough
+                        // Make the shimmer rectangle large enough
                         .frame(width: width / 2, height: height * 2)
-                    // Translate it across the entire card
+                        // Translate it across the entire card
                         .offset(x: move * 2 * width)
                 }
-                    .mask(content)  // Mask the shimmer overlay to the shape of the original content
+                .mask(content)  // Mask the shimmer overlay to the shape of the original content
             )
             .onAppear {
                 withAnimation(Animation.linear(duration: duration).repeatForever(autoreverses: false)) {
@@ -138,8 +150,4 @@ struct ShimmerEffect: ViewModifier {
                 }
             }
     }
-}
-
-#Preview {
-    ProductListSkeleton()
 }

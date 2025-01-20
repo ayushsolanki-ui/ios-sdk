@@ -1,16 +1,22 @@
 import SwiftUI
 
+/// A view that handles the root payment interface.
 public struct RootPaymentView: View {
-    @Environment(\.colorScheme) var colorScheme
+    @Environment(\.colorScheme) private var colorScheme
     @State private var isSheetPresented = false
     @StateObject private var store: PaymentStore
     
+    /// Initializes the RootPaymentView with a user ID and API key.
+    /// - Parameters:
+    ///   - userId: The user identifier.
+    ///   - apiKey: The APP API key for authentication.
     public init(
         userId: String,
         apiKey: String
     ) {
         _store = StateObject(wrappedValue: PaymentStore(userId: userId, apiKey: apiKey))
     }
+    
     public var body: some View {
         Button(action: {
             isSheetPresented = true
@@ -22,7 +28,6 @@ public struct RootPaymentView: View {
             mainContent
                 .background(Theme.background)
         }
-        .background()
     }
 }
 
@@ -50,14 +55,15 @@ extension RootPaymentView {
     }
     
     private var subscriptionButtonText: some View {
-        Text("Subscriptions")
+        Text("Upgrade Subscriptions")
             .font(Theme.font(size: 20))
             .fontWeight(.semibold)
             .foregroundColor(.white)
             .frame(minWidth: 100, minHeight: 20)
             .padding()
-            .background(Color.blue)
+            .background(Theme.primary)
             .cornerRadius(8)
+            .accessibilityLabel("Subscribe to Premium")
     }
     
     private var closeButton: some View {
@@ -72,6 +78,7 @@ extension RootPaymentView {
             }
             .padding(.trailing, 16)
             .padding(.top, 16)
+            .accessibilityLabel("Close Payment Sheet")
         }
     }
 }
