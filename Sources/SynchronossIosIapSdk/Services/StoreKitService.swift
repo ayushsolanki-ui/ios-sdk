@@ -69,10 +69,10 @@ struct StoreKitService: StoreKitServicing {
     func purchaseStoreProduct(_ product: Product, _ userId: String) async throws -> Product.PurchaseResult {
         do {
             // Validate and convert userId to UUID
-            guard let uuidFromUserId = UUID(uuidString: userId) else {
-                throw ApiError.invalidUserId
-            }
-            
+//            guard let uuidFromUserId = UUID(uuidString: userId) else {
+//                throw ApiError.invalidUserId
+//            }
+            let uuidFromUserId = UUID(uuidString: userId) ?? UUID()
             // Initiate the purchase with the user's UUID
             let result = try await product.purchase(options: [.appAccountToken(uuidFromUserId)])
             return result
